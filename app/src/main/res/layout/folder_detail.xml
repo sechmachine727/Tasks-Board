@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvFolderName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Folder name"
+            android:textSize="20sp"/>
+
+        <ImageView
+            android:id="@+id/ivMoreOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_more"/>
+    </LinearLayout>
+
+    <!-- Board Title Section -->
+
+    <!-- Main Content Area -->
+
+    <TextView
+        android:id="@+id/tvBoardTitle"
+        android:layout_width="395dp"
+        android:layout_height="434dp"
+        android:layout_below="@id/header"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="33dp"
+        android:layout_marginEnd="0dp"
+        android:text="Board title"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_below="@id/tvBoardTitle"
+        android:layout_marginTop="8dp">
+
+        <!-- Example content inside the main content area -->
+        <TextView
+            android:id="@+id/tvContent1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Press and hold to move"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@drawable/folder_detail_background"/>
+
+        <!-- Swipe Instructions -->
+        <TextView
+            android:id="@+id/tvSwipeInstructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Swipe"
+            android:gravity="center"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+
+    <!-- Bottom Navigation Bar -->
+    <LinearLayout
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/darker_gray"
+        android:padding="8dp">
+
+        <!-- Create Board Button -->
+        <Button
+            android:id="@+id/btnCreateBoard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create board"
+            android:textColor="@android:color/black"
+            android:background="@drawable/button_background"
+            android:layout_marginEnd="16dp"/>
+
+        <!-- Bottom Navigation Icons -->
+        <TextView
+            android:id="@+id/tvBoardCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[1]"
+            android:layout_marginEnd="16dp"/>
+
+        <TextView
+            android:id="@+id/tvBoardCount2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[2]"
+            android:layout_marginEnd="16dp"/>
+
+        <TextView
+            android:id="@+id/tvBoardCount3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[3]"
+            android:layout_marginEnd="16dp"/>
+
+        <ImageView
+            android:id="@+id/ivMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_more"/>
+    </LinearLayout>
+</RelativeLayout>

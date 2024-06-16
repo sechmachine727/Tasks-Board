@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tvFolders"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Folders"
+        android:textSize="24sp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp"
+        android:layout_centerHorizontal="true"/>
+
+    <!-- Options Menu Icon -->
+    <ImageView
+        android:id="@+id/ivOptionsMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_more"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- Folder 1 -->
+    <TextView
+        android:id="@+id/tvFolder1"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:text="(Preview)\n\nBoards 01"
+        android:gravity="center"
+        android:background="@drawable/folder_background"
+        android:layout_below="@id/tvFolders"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:padding="8dp"
+        android:textSize="18sp"
+        android:textAlignment="center"/>
+
+    <!-- Folder 2 -->
+    <TextView
+        android:id="@+id/tvFolder2"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:text="(Preview)\n\nBoards 02"
+        android:gravity="center"
+        android:background="@drawable/folder_background"
+        android:layout_below="@id/tvFolders"
+        android:layout_toEndOf="@id/tvFolder1"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:padding="8dp"
+        android:textSize="18sp"
+        android:textAlignment="center"/>
+
+    <!-- Create Button -->
+    <Button
+        android:id="@+id/btnCreate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="create"
+        android:background="@drawable/button_background"
+        android:textColor="@android:color/black"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:textSize="18sp" />
+
+</RelativeLayout>
