@@ -1,22 +1,24 @@
 <!-- res/layout/tab_item.xml -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:orientation="vertical"
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/tabTitle"
+            android:id="@+id/boardTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="Tab Title"/>
+            android:text="boardTitle"
+            android:textSize="24sp" />
 
     </LinearLayout>
 
