@@ -88,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
             // User is signed in
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, OverviewActivity::class.java))
             finish()
         } else {
             // User is signed out
