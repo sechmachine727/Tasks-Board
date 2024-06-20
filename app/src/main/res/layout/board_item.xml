@@ -18,13 +18,6 @@
             android:textSize="18sp"
             android:text="Tab Title"/>
 
-        <ImageView
-            android:id="@+id/tabPreview"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_foreground" /> <!-- Replace with your image resource -->
-
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
