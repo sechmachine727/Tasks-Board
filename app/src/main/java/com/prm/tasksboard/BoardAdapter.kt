@@ -11,8 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 class BoardAdapter(private val boardList: List<BoardItem>) : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>() {
 
     class BoardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val boardTitle: TextView = view.findViewById(R.id.tabTitle)
-        val boardPreview: ImageView = view.findViewById(R.id.tabPreview)
+        val boardTitle: TextView = view.findViewById(R.id.boardTitle)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoardViewHolder {
@@ -23,7 +22,7 @@ class BoardAdapter(private val boardList: List<BoardItem>) : RecyclerView.Adapte
     override fun onBindViewHolder(holder: BoardViewHolder, position: Int) {
         val boardItem = boardList[position]
         holder.boardTitle.text = boardItem.title
-        // Set the image for holder.tabPreview using your image loading library
+        // Set the image for holder.boardPreview using your image loading library
     }
 
     override fun getItemCount() = boardList.size

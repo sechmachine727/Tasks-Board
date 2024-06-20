@@ -50,9 +50,9 @@ class OverviewActivity : AppCompatActivity() {
 
         addBoardButton = findViewById(R.id.addBoardButton)
         addBoardButton.setOnClickListener {
-            // Create a new TabItem
-            val newBoard = BoardItem("New Tab", R.drawable.ic_launcher_foreground)
-            // Add it to your tabList
+            // Create a new BoardItem
+            val newBoard = BoardItem("New Board", R.drawable.ic_launcher_foreground)
+            // Add it to your boardList
             boardList.add(newBoard)
             // Notify the adapter that the dataset has changed
             boardAdapter.notifyItemInserted(boardList.size - 1)
