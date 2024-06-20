@@ -3,4 +3,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="default_web_client_id">445591915415-1aurijt9tghpbu1j2qs64rju2a787vfk.apps.googleusercontent.com</string>
+    <string name="login">Login</string>
+    <string name="logo_description">Logo of the application</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="project_name">Welcome to Tasks Board</string>
+    <string name="description_google_icon">Google icon</string>
 </resources>

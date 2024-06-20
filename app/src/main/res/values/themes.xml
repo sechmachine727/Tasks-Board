@@ -6,4 +6,8 @@
     </style>
 
     <style name="Theme.TasksBoard" parent="Base.Theme.TasksBoard" />
+    <style name="MyButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">#6699FF</item>
+        <item name="cornerRadius">0dp</item>
+    </style>
 </resources>
