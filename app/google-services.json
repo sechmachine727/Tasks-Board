@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "445591915415",
+    "project_id": "tasksboard-d295e",
+    "storage_bucket": "tasksboard-d295e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445591915415:android:5a273462450bd16adb12d2",
+        "android_client_info": {
+          "package_name": "com.prm.tasksboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "445591915415-l4gu6tklrcvkvmu1acu4d2dqi8q5673t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.prm.tasksboard",
+            "certificate_hash": "c20e81fe5149d5a963cd1edec0cbe610f61fda03"
+          }
+        },
+        {
+          "client_id": "445591915415-1aurijt9tghpbu1j2qs64rju2a787vfk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwTcZvSz00DzTLeBa45sqHJzeYUTl7tJ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "445591915415-1aurijt9tghpbu1j2qs64rju2a787vfk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
