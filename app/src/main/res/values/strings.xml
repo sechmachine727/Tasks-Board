@@ -8,4 +8,12 @@
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="project_name">Tasks Board</string>
     <string name="description_google_icon">Google icon</string>
+    <string name="sign_in_button_action_description">Sign in to your account</string>
+    <string name="board_title">Board Title</string>
+    <string name="board_description">Board Description</string>
+    <string name="board_due_date">Due Date</string>
+    <string name="board_status">Status</string>
+    <string name="add_board">Add Board</string>
+    <string name="status_finished">Finished</string>
+    <string name="status_not_finished">Not Finished</string>
 </resources>
