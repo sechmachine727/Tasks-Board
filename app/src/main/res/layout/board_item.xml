@@ -1,5 +1,5 @@
-<!-- res/layout/tab_item.xml -->
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- res/layout/board_item.xml -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -17,9 +17,29 @@
             android:id="@+id/boardTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="boardTitle"
+            android:text="@string/board_title"
             android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/boardDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/board_description"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/boardDueDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/board_due_date"
+            android:textSize="16sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/boardStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/board_status" />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -1,4 +1,4 @@
-<!-- res/layout/activity_main.xml -->
+<!-- res/layout/activity_overview.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,9 +10,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/addBoardButton"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/addBoardButton"
         android:layout_width="146dp"
         android:layout_height="60dp"
@@ -20,6 +21,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
-        android:text="Add Board" />
+        android:text="@string/add_board" />
 
 </RelativeLayout>
