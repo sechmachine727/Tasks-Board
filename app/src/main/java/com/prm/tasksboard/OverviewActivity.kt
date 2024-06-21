@@ -15,8 +15,8 @@ class OverviewActivity : AppCompatActivity() {
     private lateinit var boardAdapter: BoardAdapter
     private lateinit var addBoardButton: Button
     private val boardList = mutableListOf(
-        BoardItem("Board 1", R.drawable.ic_launcher_foreground), //previewDrawable placeholder
-        BoardItem("Board 2", R.drawable.ic_launcher_foreground),
+        BoardItem("Board 1", true), //previewDrawable placeholder
+        BoardItem("Board 2", true),
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +51,7 @@ class OverviewActivity : AppCompatActivity() {
         addBoardButton = findViewById(R.id.addBoardButton)
         addBoardButton.setOnClickListener {
             // Create a new BoardItem
-            val newBoard = BoardItem("New Board", R.drawable.ic_launcher_foreground)
+            val newBoard = BoardItem("New Board", true)
             // Add it to your boardList
             boardList.add(newBoard)
             // Notify the adapter that the dataset has changed
