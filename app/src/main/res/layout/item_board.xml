@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/itemLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -12,27 +11,27 @@
     android:focusable="true">
 
     <ImageView
-        android:id="@+id/imageViewFolderIcon"
+        android:id="@+id/imageViewBoardIcon"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:src="@drawable/ic_folder"
-        android:contentDescription="Folder Icon"
+        android:src="@drawable/ic_board"
+        android:contentDescription="Board Icon"
         app:tint="@color/colorPrimary" />
 
     <TextView
-        android:id="@+id/textViewFolderName"
+        android:id="@+id/textViewBoardName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="16dp"
         android:textSize="16sp"
         android:textColor="@android:color/black"
-        android:text="Folder Name"
+        android:text="Board Name"
         android:maxLines="1"
         android:ellipsize="end" />
 
     <ImageView
-        android:id="@+id/imageViewOptions"
+        android:id="@+id/imageViewBoardOptions"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_more_vert"

@@ -6,4 +6,5 @@
     <string name="folder_icon">Folder Icon</string>
     <string name="folder_name">Folder Name</string>
     <string name="trash_bin">Trash Bin</string>
+    <string name="create_board">Create Board</string>
 </resources>

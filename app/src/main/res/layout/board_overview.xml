@@ -21,15 +21,12 @@
 <!--        android:padding="16dp"-->
 <!--        tools:listitem="@layout/item_folder" />-->
 
+    <!-- RecyclerView for displaying folders -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewFolders"
-        android:layout_width="405dp"
-        android:layout_height="649dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="93dp"
-        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
         tools:listitem="@layout/item_folder" />
 
     <ImageView
@@ -53,6 +50,6 @@
         android:contentDescription="@string/create_folder"
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/colorFabBackground"
-        app:tint="@color/colorFabIcon" />
+        app:tint="@color/white" />
 
 </RelativeLayout>
