@@ -6,18 +6,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 
 class OverviewActivity : AppCompatActivity() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var boardAdapter: BoardAdapter
+    private lateinit var viewPager: ViewPager2
+    private lateinit var boardPagerAdapter: BoardPagerAdapter
     private lateinit var addBoardButton: Button
     private val boardList = mutableListOf(
         BoardItem("Board 1", true), //previewDrawable placeholder
         BoardItem("Board 2", true),
     )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -27,26 +26,9 @@ class OverviewActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        boardAdapter = BoardAdapter(boardList)
-        recyclerView.adapter = boardAdapter
-
-        // Set up ItemTouchHelper for swipe gestures
-        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // Handle swipe-to-dismiss logic here
-                val position = viewHolder.adapterPosition
-                boardList.removeAt(position)
-                boardAdapter.notifyItemRemoved(position)
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+        viewPager = findViewById(R.id.viewPager)
+        boardPagerAdapter = BoardPagerAdapter(boardList)
+        viewPager.adapter = boardPagerAdapter
 
         addBoardButton = findViewById(R.id.addBoardButton)
         addBoardButton.setOnClickListener {
@@ -55,7 +37,7 @@ class OverviewActivity : AppCompatActivity() {
             // Add it to your boardList
             boardList.add(newBoard)
             // Notify the adapter that the dataset has changed
-            boardAdapter.notifyItemInserted(boardList.size - 1)
+            boardPagerAdapter.notifyItemInserted(boardList.size - 1)
         }
         //TODO: Pop-up to ask for new board name
     }
