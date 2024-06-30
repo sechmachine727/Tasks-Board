@@ -13,7 +13,8 @@
     <string name="board_description">Board Description</string>
     <string name="board_due_date">Due Date</string>
     <string name="board_status">Status</string>
-    <string name="add_board">Add Board</string>
     <string name="status_finished">Finished</string>
     <string name="status_not_finished">Not Finished</string>
+    <string name="tab_layout_description">Tab layout for switching between boards</string>
+    <string name="add_task">Add task</string>
 </resources>
