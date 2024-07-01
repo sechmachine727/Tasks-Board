@@ -35,4 +35,4 @@ class BoardAdapter(private val boardList: List<BoardItem>) : RecyclerView.Adapte
     override fun getItemCount() = boardList.size
 }
 
-data class BoardItem(val title: String, val isFinished: Boolean)
+data class BoardItem(var title: String, val isFinished: Boolean)

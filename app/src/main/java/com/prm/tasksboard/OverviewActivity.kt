@@ -13,6 +13,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import android.app.AlertDialog
+import android.widget.EditText
+import android.view.ViewGroup
 
 class OverviewActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
@@ -43,9 +46,34 @@ class OverviewActivity : AppCompatActivity() {
         viewPager.adapter = boardPagerAdapter
 
         // Link ViewPager2 and TabLayout
+        // Link ViewPager2 and TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = boardList[position].title
         }.attach()
+
+        tabLayout.post {
+            for (i in 0 until tabLayout.tabCount) {
+                val tab = tabLayout.getTabAt(i)
+                val tabView = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(tab?.position ?: 0)
+                tabView.setOnLongClickListener {
+                    showRenameDialog(i)
+                    true
+                }
+            }
+        }
+
+        // Set click listener on TabLayout
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val tabView = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(tab?.position ?: 0)
+                tabView.setOnLongClickListener {
+                    showRenameDialog(tab?.position ?: 0)
+                    true
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
 
         emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
 
@@ -121,5 +149,23 @@ class OverviewActivity : AppCompatActivity() {
             }
             popupMenu.show()
         }
+    }
+    private fun showRenameDialog(position: Int) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Rename Board")
+
+        val input = EditText(this)
+        input.setText(boardList[position].title)
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { _, _ ->
+            val newName = input.text.toString()
+            boardList[position].title = newName
+            tabLayout.getTabAt(position)?.text = newName
+            boardPagerAdapter.notifyItemChanged(position)
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
     }
 }
