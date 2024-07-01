@@ -48,7 +48,7 @@ class OverviewActivity : AppCompatActivity() {
         // Link ViewPager2 and TabLayout
         // Link ViewPager2 and TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = boardList[position].title
+            tab.text = boardList[position].description // Use description instead of title
         }.attach()
 
         tabLayout.post {
@@ -79,7 +79,14 @@ class OverviewActivity : AppCompatActivity() {
 
         addBoardButton.setOnClickListener {
             // Create a new BoardItem
-            val newBoard = BoardItem("New Board", true)
+            val newBoard = BoardItem(
+                createdAt = "New Board Created At",
+                description = "New Board",
+                dueDate = "New Board Due Date",
+                priority = "New Board Priority",
+                updatedAt = "New Board Updated At",
+                isFinished = true
+            )
             // Add it to your boardList
             boardList.add(newBoard)
             // Notify the adapter that the dataset has changed
@@ -87,7 +94,7 @@ class OverviewActivity : AppCompatActivity() {
             // Refresh the TabLayout
             tabLayout.removeAllTabs()
             TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
-                tab.text = boardList[pos].title
+                tab.text = boardList[pos].description // Use description instead of title
             }.attach()
             emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
         }
@@ -106,7 +113,14 @@ class OverviewActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.add_board -> {
                         // Create a new BoardItem
-                        val newBoard = BoardItem("New Board", true)
+                        val newBoard = BoardItem(
+                            createdAt = "New Board Created At",
+                            description = "New Board",
+                            dueDate = "New Board Due Date",
+                            priority = "New Board Priority",
+                            updatedAt = "New Board Updated At",
+                            isFinished = true
+                        )
                         // Add it to your boardList
                         boardList.add(newBoard)
                         // If this is the first board after all boards have been deleted, reattach the adapter
@@ -118,7 +132,7 @@ class OverviewActivity : AppCompatActivity() {
                         // Refresh the TabLayout
                         tabLayout.removeAllTabs()
                         TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
-                            tab.text = boardList[pos].title
+                            tab.text = boardList[pos].description // Use description instead of title
                         }.attach()
                         emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
                         true
@@ -137,7 +151,7 @@ class OverviewActivity : AppCompatActivity() {
                         tabLayout.removeAllTabs()
                         if (boardList.isNotEmpty()) {
                             TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
-                                tab.text = boardList[pos].title
+                                tab.text = boardList[pos].description // Use description instead of title
                             }.attach()
                         }
                         emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
@@ -155,12 +169,12 @@ class OverviewActivity : AppCompatActivity() {
         builder.setTitle("Rename Board")
 
         val input = EditText(this)
-        input.setText(boardList[position].title)
+        input.setText(boardList[position].description) // Use description instead of title
         builder.setView(input)
 
         builder.setPositiveButton("OK") { _, _ ->
             val newName = input.text.toString()
-            boardList[position].title = newName
+            boardList[position].description = newName // Use description instead of title
             tabLayout.getTabAt(position)?.text = newName
             boardPagerAdapter.notifyItemChanged(position)
         }
