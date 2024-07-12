@@ -26,7 +26,7 @@ class TaskboardsActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
     private lateinit var boardPagerAdapter: BoardPagerAdapter
-    private lateinit var addBoardButton: Button
+    private lateinit var addTaskButton: Button
     private lateinit var menuButton: MaterialButton
     private lateinit var emptyView: TextView
     private var tabLayoutMediator: TabLayoutMediator? = null
@@ -50,7 +50,7 @@ class TaskboardsActivity : AppCompatActivity() {
 
         viewPager = findViewById(R.id.viewPager)
         tabLayout = findViewById(R.id.tabLayout)
-        addBoardButton = findViewById(R.id.addBoardButton)
+        addTaskButton = findViewById(R.id.addTaskButton)
         menuButton = findViewById(R.id.menuButton)
         emptyView = findViewById(R.id.emptyView)
 
@@ -64,7 +64,7 @@ class TaskboardsActivity : AppCompatActivity() {
         setTabLayoutListeners()
         updateEmptyViewVisibility()
 
-        addBoardButton.setOnClickListener {
+        addTaskButton.setOnClickListener {
             createNewBoard()
         }
 
