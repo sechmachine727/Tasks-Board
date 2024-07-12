@@ -1,4 +1,4 @@
-package com.prm.tasksboard
+package com.prm.tasksboard.authentication
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +17,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.prm.tasksboard.R
+import com.prm.tasksboard.taskboards.view.TaskboardsActivity
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -92,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
             // User is signed in
-            val intent = Intent(this, OverviewActivity::class.java)
+            val intent = Intent(this, TaskboardsActivity::class.java)
             startActivity(intent)
         } else {
             // User is signed out
