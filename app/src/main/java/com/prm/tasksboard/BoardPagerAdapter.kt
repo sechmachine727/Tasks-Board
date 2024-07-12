@@ -5,10 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class BoardPagerAdapter(private val boardList: MutableList<BoardItem>) : RecyclerView.Adapter<BoardPagerAdapter.BoardViewHolder>() {
+class BoardPagerAdapter(private val boardList: MutableList<BoardItem>) :
+    RecyclerView.Adapter<BoardPagerAdapter.BoardViewHolder>() {
 
     class BoardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // TODO: Define the view components of each item here
+        // Define the view components of each item here
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoardViewHolder {
