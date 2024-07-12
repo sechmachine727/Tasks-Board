@@ -1,9 +1,11 @@
-package com.prm.tasksboard
+package com.prm.tasksboard.taskboards.view
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.prm.tasksboard.R
+import com.prm.tasksboard.taskboards.entity.BoardItem
 
 class BoardPagerAdapter(private val boardList: MutableList<BoardItem>) :
     RecyclerView.Adapter<BoardPagerAdapter.BoardViewHolder>() {

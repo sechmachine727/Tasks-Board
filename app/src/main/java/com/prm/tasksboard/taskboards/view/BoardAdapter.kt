@@ -1,12 +1,12 @@
-package com.prm.tasksboard
+package com.prm.tasksboard.taskboards.view
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.PropertyName
+import com.prm.tasksboard.R
+import com.prm.tasksboard.taskboards.entity.BoardItem
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -32,11 +32,3 @@ class BoardAdapter(private val boardList: List<BoardItem>) :
 
     override fun getItemCount() = boardList.size
 }
-
-data class BoardItem(
-    var boardId: String = "",
-    @get:PropertyName("created_at") @set:PropertyName("created_at") var createdAt: Timestamp,
-    @get:PropertyName("name") @set:PropertyName("name") var name: String,
-    @get:PropertyName("updated_at") @set:PropertyName("updated_at") var updatedAt: Timestamp,
-    @get:PropertyName("user_id") @set:PropertyName("user_id") var userId: String,
-)
