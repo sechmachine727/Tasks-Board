@@ -157,8 +157,6 @@ class OverviewActivity : AppCompatActivity() {
                         deleteBoardItem(boardList[viewPager.currentItem].boardId)
                         // Remove the board from your boardList
                         boardList.removeAt(viewPager.currentItem)
-                        // Delete the board from Firestore
-                        deleteBoardItem(boardList[viewPager.currentItem].name)
                         // Notify the adapter that the dataset has changed
                         boardPagerAdapter.notifyItemRemoved(viewPager.currentItem)
                         // If there are no boards left, detach the adapter
