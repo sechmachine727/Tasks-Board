@@ -20,7 +20,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 class OverviewActivity : AppCompatActivity() {
@@ -41,11 +40,7 @@ class OverviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_overview)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        setWindowInsetsListener()
 
         Log.d("FirebaseAuth", "Logged in user ID: $loggedInUserId")
 
@@ -59,58 +54,16 @@ class OverviewActivity : AppCompatActivity() {
         viewPager.adapter = boardPagerAdapter
 
         // Link ViewPager2 and TabLayout
-        // Link ViewPager2 and TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = boardList[position].name
         }.attach()
 
-        tabLayout.post {
-            for (i in 0 until tabLayout.tabCount) {
-                val tab = tabLayout.getTabAt(i)
-                val tabView = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(tab?.position ?: 0)
-                tabView.setOnLongClickListener {
-                    showRenameDialog(i)
-                    true
-                }
-            }
-        }
+        setTabLayoutListeners()
 
-        // Set click listener on TabLayout
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                val tabView = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(tab?.position ?: 0)
-                tabView.setOnLongClickListener {
-                    showRenameDialog(tab?.position ?: 0)
-                    true
-                }
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
-
-        emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
+        updateEmptyViewVisibility()
 
         addBoardButton.setOnClickListener {
-            // Create a new BoardItem
-            val newBoard = BoardItem(
-                createdAt = Timestamp.now(),
-                name = "New Board #${boardList.size + 1}",
-                updatedAt = Timestamp.now(),
-                userId = loggedInUserId,
-            )
-            // Add it to your boardList
-            boardList.add(newBoard)
-            // Add it to Firestore
-            addBoardItem(newBoard)
-            // Notify the adapter that the dataset has changed
-            boardPagerAdapter.notifyItemInserted(boardList.size - 1)
-            // Refresh the TabLayout
-            tabLayout.removeAllTabs()
-            TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
-                tab.text = boardList[pos].name
-            }.attach()
-            emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
+            createNewBoard()
         }
 
         menuButton.setOnClickListener {
@@ -126,51 +79,12 @@ class OverviewActivity : AppCompatActivity() {
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.add_board -> {
-                        // Create a new BoardItem
-                        val newBoard = BoardItem(
-                            createdAt = Timestamp.now(),
-                            name = "New Board #${boardList.size + 1}",
-                            updatedAt = Timestamp.now(),
-                            userId = loggedInUserId,
-                        )
-                        // Add it to your boardList
-                        boardList.add(newBoard)
-                        // Add it to Firestore
-                        addBoardItem(newBoard)
-                        // If this is the first board after all boards have been deleted, reattach the adapter
-                        if (boardList.size == 1) {
-                            viewPager.adapter = boardPagerAdapter
-                        }
-                        // Notify the adapter that the dataset has changed
-                        boardPagerAdapter.notifyItemInserted(boardList.size - 1)
-                        // Refresh the TabLayout
-                        tabLayout.removeAllTabs()
-                        TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
-                            tab.text = boardList[pos].name
-                        }.attach()
-                        emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
+                        createNewBoard()
                         true
                     }
 
                     R.id.delete_board -> {
-                        // Delete the board from firestore
-                        deleteBoardItem(boardList[viewPager.currentItem].boardId)
-                        // Remove the board from your boardList
-                        boardList.removeAt(viewPager.currentItem)
-                        // Notify the adapter that the dataset has changed
-                        boardPagerAdapter.notifyItemRemoved(viewPager.currentItem)
-                        // If there are no boards left, detach the adapter
-                        if (boardList.isEmpty()) {
-                            viewPager.adapter = null
-                        }
-                        // Refresh the TabLayout
-                        tabLayout.removeAllTabs()
-                        if (boardList.isNotEmpty()) {
-                            TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
-                                tab.text = boardList[pos].name
-                            }.attach()
-                        }
-                        emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
+                        deleteBoard()
                         true
                     }
 
@@ -179,6 +93,76 @@ class OverviewActivity : AppCompatActivity() {
             }
             popupMenu.show()
         }
+    }
+
+    private fun setWindowInsetsListener() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    private fun setTabLayoutListeners() {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val tabView = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(tab?.position ?: 0)
+                tabView.setOnLongClickListener {
+                    showRenameDialog(tab?.position ?: 0)
+                    true
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+    }
+
+    private fun updateEmptyViewVisibility() {
+        emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun createNewBoard() {
+        // Create a new BoardItem
+        val newBoard = BoardItem(
+            createdAt = Timestamp.now(),
+            name = "New Board #${boardList.size + 1}",
+            updatedAt = Timestamp.now(),
+            userId = loggedInUserId,
+        )
+        // Add it to your boardList
+        boardList.add(newBoard)
+        // Add it to Firestore
+        addBoardItem(newBoard)
+        // Notify the adapter that the dataset has changed
+        boardPagerAdapter.notifyItemInserted(boardList.size - 1)
+        // Refresh the TabLayout
+        tabLayout.removeAllTabs()
+        TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
+            tab.text = boardList[pos].name
+        }.attach()
+        updateEmptyViewVisibility()
+    }
+
+    private fun deleteBoard() {
+        // Delete the board from firestore
+        deleteBoardItem(boardList[viewPager.currentItem].boardId)
+        // Remove the board from your boardList
+        boardList.removeAt(viewPager.currentItem)
+        // Notify the adapter that the dataset has changed
+        boardPagerAdapter.notifyItemRemoved(viewPager.currentItem)
+        // If there are no boards left, detach the adapter
+        if (boardList.isEmpty()) {
+            viewPager.adapter = null
+        }
+        // Refresh the TabLayout
+        tabLayout.removeAllTabs()
+        if (boardList.isNotEmpty()) {
+            TabLayoutMediator(tabLayout, viewPager) { tab, pos ->
+                tab.text = boardList[pos].name
+            }.attach()
+        }
+        updateEmptyViewVisibility()
     }
 
     private fun showRenameDialog(position: Int) {
@@ -252,17 +236,17 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     fun checkFirestoreConnection() {
-    db.collection("boards") // Replace "known_collection" with your actual collection name
-        .get()
-        .addOnSuccessListener { documents ->
-            if (documents.isEmpty) {
-                Log.d("FirestoreCheck", "Connected to Firestore, but the collection is empty.")
-            } else {
-                Log.d("FirestoreCheck", "Successfully connected to Firestore.")
+        db.collection("boards") // Replace "known_collection" with your actual collection name
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Log.d("FirestoreCheck", "Connected to Firestore, but the collection is empty.")
+                } else {
+                    Log.d("FirestoreCheck", "Successfully connected to Firestore.")
+                }
             }
-        }
-        .addOnFailureListener { exception ->
-            Log.w("FirestoreCheck", "Error connecting to Firestore: ", exception)
-        }
-}
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreCheck", "Error connecting to Firestore: ", exception)
+            }
+    }
 }
