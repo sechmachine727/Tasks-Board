@@ -233,7 +233,7 @@ class OverviewActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d(
                     "FirestoreUpdate",
-                    "DocumentSnapshot successfully updated!"
+                    "Document $boardItemId successfully updated!"
                 )
             }
             .addOnFailureListener { e -> Log.w("FirestoreUpdate", "Error updating document", e) }
@@ -245,7 +245,7 @@ class OverviewActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d(
                     "FirestoreDelete",
-                    "DocumentSnapshot successfully deleted!"
+                    "Document $boardItemId successfully deleted!"
                 )
             }
             .addOnFailureListener { e -> Log.w("FirestoreDelete", "Error deleting document", e) }
