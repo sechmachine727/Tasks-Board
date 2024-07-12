@@ -252,7 +252,7 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     fun checkFirestoreConnection() {
-    db.collection("known_collection") // Replace "known_collection" with your actual collection name
+    db.collection("boards") // Replace "known_collection" with your actual collection name
         .get()
         .addOnSuccessListener { documents ->
             if (documents.isEmpty) {
