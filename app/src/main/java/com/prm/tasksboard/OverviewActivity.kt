@@ -46,7 +46,6 @@ class OverviewActivity : AppCompatActivity() {
         viewPager.adapter = boardPagerAdapter
 
         // Link ViewPager2 and TabLayout
-        // Link ViewPager2 and TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = boardList[position].description // Use description instead of title
         }.attach()

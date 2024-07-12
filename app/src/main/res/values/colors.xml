@@ -8,4 +8,6 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorFabBackground">#6200EE</color>
+    <color name="status_finished">#008000</color>
+    <color name="status_not_finished">#FF0000</color>
 </resources>
