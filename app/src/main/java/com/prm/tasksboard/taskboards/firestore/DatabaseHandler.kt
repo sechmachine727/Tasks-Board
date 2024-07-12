@@ -24,8 +24,9 @@ class DatabaseHandler {
             }
     }
 
-    fun getBoardItems() {
+    fun getBoardItemsByUserId() {
         db.collection("boards")
+            .whereEqualTo("user_id", loggedInUserId)
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
