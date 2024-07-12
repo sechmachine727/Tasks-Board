@@ -4,7 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".OverviewActivity">
+    tools:context=".taskboards.view.TaskboardsActivity">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
