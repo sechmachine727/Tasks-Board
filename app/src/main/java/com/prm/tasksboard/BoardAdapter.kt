@@ -5,16 +5,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.chip.Chip
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-class BoardAdapter(private val boardList: List<BoardItem>) : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>() {
+class BoardAdapter(private val boardList: List<BoardItem>) :
+    RecyclerView.Adapter<BoardAdapter.BoardViewHolder>() {
 
     class BoardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val boardCreatedAt: TextView = view.findViewById(R.id.boardCreatedAt)
-        val boardDescription: TextView = view.findViewById(R.id.boardDescription)
-        val boardDueDate: TextView = view.findViewById(R.id.boardDueDate)
-        val boardPriority: TextView = view.findViewById(R.id.boardPriority)
-        val boardStatus: Chip = view.findViewById(R.id.boardStatus)
         val boardUpdatedAt: TextView = view.findViewById(R.id.boardUpdatedAt)
     }
 
@@ -25,29 +25,18 @@ class BoardAdapter(private val boardList: List<BoardItem>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: BoardViewHolder, position: Int) {
         val boardItem = boardList[position]
-        holder.boardCreatedAt.text = boardItem.createdAt
-        holder.boardDescription.text = boardItem.description
-        holder.boardDueDate.text = boardItem.dueDate
-        holder.boardPriority.text = boardItem.priority
-        holder.boardUpdatedAt.text = boardItem.updatedAt
-
-        if (boardItem.isFinished) {
-            holder.boardStatus.setChipBackgroundColorResource(R.color.status_finished)
-            holder.boardStatus.text = holder.itemView.context.getString(R.string.status_finished)
-        } else {
-            holder.boardStatus.setChipBackgroundColorResource(R.color.status_not_finished)
-            holder.boardStatus.text = holder.itemView.context.getString(R.string.status_not_finished)
-        }
+        val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm:ss", Locale.getDefault())
+        holder.boardCreatedAt.text = dateFormat.format(boardItem.createdAt.toDate())
+        holder.boardUpdatedAt.text = dateFormat.format(boardItem.updatedAt.toDate())
     }
 
     override fun getItemCount() = boardList.size
 }
 
 data class BoardItem(
-    var createdAt: String,
-    var description: String,
-    var dueDate: String,
-    var priority: String,
-    var updatedAt: String,
-    val isFinished: Boolean
+    var boardId: String = "",
+    @get:PropertyName("created_at") @set:PropertyName("created_at") var createdAt: Timestamp,
+    @get:PropertyName("name") @set:PropertyName("name") var name: String,
+    @get:PropertyName("updated_at") @set:PropertyName("updated_at") var updatedAt: Timestamp,
+    @get:PropertyName("user_id") @set:PropertyName("user_id") var userId: String,
 )
