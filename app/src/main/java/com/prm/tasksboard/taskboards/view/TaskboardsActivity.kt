@@ -25,6 +25,8 @@ import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
 import java.util.UUID
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import java.util.Calendar
+import android.app.DatePickerDialog
 
 class TaskboardsActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
@@ -155,16 +157,45 @@ class TaskboardsActivity : AppCompatActivity() {
     }
 
     private fun showAddTaskDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_task, null)
+        val taskNameInput = dialogView.findViewById<EditText>(R.id.taskNameInput)
+        val taskDescriptionInput = dialogView.findViewById<EditText>(R.id.taskDescriptionInput)
+        val selectDueDate = dialogView.findViewById<TextView>(R.id.selectDueDate)
+        val selectPriority = dialogView.findViewById<TextView>(R.id.selectPriority)
+
         val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
         builder.setTitle("Add New Task")
 
-        val input = EditText(this)
-        input.hint = "Enter task name"
-        builder.setView(input)
+        selectDueDate.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val datePickerDialog = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
+                val dueDate = "$dayOfMonth/${monthOfYear + 1}/$year"
+                selectDueDate.text = dueDate
+            }, year, month, day)
+            datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
+            datePickerDialog.show()
+        }
+
+        selectPriority.setOnClickListener {
+            val popupMenu = PopupMenu(this, it)
+            popupMenu.menuInflater.inflate(R.menu.priority_menu, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.high_priority -> selectPriority.text = "High"
+                    R.id.medium_priority -> selectPriority.text = "Medium"
+                    R.id.low_priority -> selectPriority.text = "Low"
+                }
+                true
+            }
+            popupMenu.show()
+        }
 
         builder.setPositiveButton("OK") { _, _ ->
-            val taskName = input.text.toString()
-            addNewTask(taskName)
+            // Handle the task addition here
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
