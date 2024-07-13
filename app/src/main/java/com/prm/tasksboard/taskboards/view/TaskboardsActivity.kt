@@ -64,6 +64,8 @@ class TaskboardsActivity : AppCompatActivity() {
         setTabLayoutListeners()
         updateEmptyViewVisibility()
 
+        fetchAndDisplayBoards()
+
         addBoardButton.setOnClickListener {
             createNewBoard()
         }
@@ -181,5 +183,22 @@ class TaskboardsActivity : AppCompatActivity() {
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
         builder.show()
+    }
+
+    private fun fetchAndDisplayBoards() {
+        dbHandler.getBoardItemsByUserId().addOnSuccessListener { result ->
+            val startPosition = boardList.size // Track start position before adding new items
+            boardList.clear() // Optional: Clear existing items if refreshing the entire list
+            val newItems = result.map { document ->
+                document.toObject(BoardItem::class.java)
+            }
+            boardList.addAll(newItems)
+            if (boardList.isNotEmpty()) {
+                // Notify adapter about the range of items inserted
+                boardPagerAdapter.notifyItemRangeInserted(startPosition, newItems.size)
+                setupTabLayoutWithViewPager()
+            }
+            updateEmptyViewVisibility()
+        }
     }
 }

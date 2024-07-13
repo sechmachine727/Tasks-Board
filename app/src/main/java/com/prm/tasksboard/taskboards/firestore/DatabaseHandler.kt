@@ -1,7 +1,9 @@
 package com.prm.tasksboard.taskboards.firestore
 
 import android.util.Log
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.prm.tasksboard.taskboards.entity.BoardItem
@@ -24,9 +26,9 @@ class DatabaseHandler {
             }
     }
 
-    fun getBoardItemsByUserId() {
-        db.collection("boards")
-            .whereEqualTo("user_id", loggedInUserId)
+    fun getBoardItemsByUserId(): Task<QuerySnapshot> {
+        return db.collection("boards")
+            .whereEqualTo("user_id", loggedInUserId).orderBy("created_at")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
@@ -64,6 +66,7 @@ class DatabaseHandler {
 
     fun checkFirestoreConnection() {
         db.collection("boards") // Replace "known_collection" with your actual collection name
+            .whereEqualTo("user_id", loggedInUserId).limit(1)
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {

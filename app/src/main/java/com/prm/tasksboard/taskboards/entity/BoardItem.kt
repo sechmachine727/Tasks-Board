@@ -9,4 +9,6 @@ data class BoardItem(
     @get:PropertyName("name") @set:PropertyName("name") var name: String,
     @get:PropertyName("updated_at") @set:PropertyName("updated_at") var updatedAt: Timestamp,
     @get:PropertyName("user_id") @set:PropertyName("user_id") var userId: String,
-)
+) {
+    constructor() : this("", Timestamp.now(), "", Timestamp.now(), "")
+}

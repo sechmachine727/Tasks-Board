@@ -8,11 +8,11 @@
     <string name="project_name">Tasks Board</string>
     <string name="description_google_icon">Google icon</string>
     <string name="sign_in_button_action_description">Sign in to your account</string>
-    <string name="board_created_at">Created At:</string>
+    <string name="board_created_at">Created At: %1$s</string>
+    <string name="board_updated_at">Updated At: %1$s</string>
     <string name="board_description">Description:</string>
     <string name="board_due_date">Due Date:</string>
     <string name="board_priority">Priority:</string>
-    <string name="board_updated_at">Updated At:</string>
     <string name="board_status">Status</string>
     <string name="status_finished">Finished</string>
     <string name="status_not_finished">Not Finished</string>
