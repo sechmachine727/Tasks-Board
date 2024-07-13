@@ -274,6 +274,7 @@ class TaskboardsActivity : AppCompatActivity() {
         } else {
             boardPagerAdapter.notifyItemRemoved(currentItem)
             setupTabLayoutWithViewPager() // Re-setup TabLayout with ViewPager
+            displayTasksForCurrentBoard()
         }
         updateEmptyViewVisibility()
     }
