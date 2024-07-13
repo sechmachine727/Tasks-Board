@@ -158,20 +158,22 @@ class TaskboardsActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Add New Task")
 
-        val input = EditText(this)
-        input.hint = "Enter task name"
-        builder.setView(input)
+        val view = layoutInflater.inflate(R.layout.dialog_add_task, null)
+        val taskNameInput = view.findViewById<EditText>(R.id.taskNameInput)
+        val taskDescriptionInput = view.findViewById<EditText>(R.id.taskDescriptionInput)
+        builder.setView(view)
 
         builder.setPositiveButton("OK") { _, _ ->
-            val taskName = input.text.toString()
-            addNewTask(taskName)
+            val taskName = taskNameInput.text.toString()
+            val taskDescription = taskDescriptionInput.text.toString()
+            addNewTask(taskName, taskDescription)
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
         builder.show()
     }
 
-    private fun addNewTask(taskName: String) {
+    private fun addNewTask(taskName: String, taskDescription: String) {
         if (boardList.isEmpty()) {
             val newBoard = BoardItem(
                 createdAt = Timestamp.now(),
@@ -190,20 +192,20 @@ class TaskboardsActivity : AppCompatActivity() {
                 setupTabLayoutWithViewPager()
                 updateEmptyViewVisibility()
                 // Now add the task to the newly created board
-                addTaskToBoard(taskName, newBoardId, loggedInUserId)
+                addTaskToBoard(taskName, newBoardId, loggedInUserId, taskDescription)
             }
         } else {
             val currentBoardId = boardList[viewPager.currentItem].boardId
-            addTaskToBoard(taskName, currentBoardId, loggedInUserId)
+            addTaskToBoard(taskName, currentBoardId, loggedInUserId, taskDescription)
         }
     }
 
-    private fun addTaskToBoard(taskName: String, boardId: String, userId: String) {
+    private fun addTaskToBoard(taskName: String, boardId: String, userId: String, description: String) {
         val newTask = TaskItem(
             taskId = UUID.randomUUID().toString(),
             boardId = boardId,
             title = taskName,
-            description = "",
+            description = description, // Now correctly references the parameter
             status = "Pending",
             dueDate = "",
             priority = "Normal",
