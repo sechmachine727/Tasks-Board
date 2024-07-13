@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -40,6 +39,19 @@ class TaskboardsActivity : AppCompatActivity() {
     private val dbHandler = DatabaseHandler()
 
     private fun setupTabLayoutWithViewPager() {
+        tabLayoutMediator?.detach() // Detach existing TabLayoutMediator if any
+        tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = boardList[position].name
+        }
+        tabLayoutMediator?.attach()
+    }
+
+    private fun setupViewPagerAndTabs() {
+        // Assuming boardList is already populated
+        boardPagerAdapter = BoardPagerAdapter(boardList)
+        viewPager.adapter = boardPagerAdapter
+
+        // Setup TabLayoutMediator after setting the adapter
         tabLayoutMediator?.detach() // Detach existing TabLayoutMediator if any
         tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = boardList[position].name
@@ -102,17 +114,17 @@ class TaskboardsActivity : AppCompatActivity() {
             }
             popupMenu.show()
         }
+        setupViewPagerPageChangeCallback()
     }
 
-    private fun countUserTasksAndShow() {
-        // Assuming the current board ID is needed to fetch tasks. Adjust if tasks are not board-specific.
-        val currentBoardId = boardList.getOrNull(viewPager.currentItem)?.boardId ?: return
-        dbHandler.getTasksByBoardId(currentBoardId) { tasks ->
-            val message = "This user currently has ${tasks.size} task(s)"
-            runOnUiThread {
-                Toast.makeText(this@TaskboardsActivity, message, Toast.LENGTH_LONG).show()
+    private fun setupViewPagerPageChangeCallback() {
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                // Fetch and display tasks for the newly selected board
+                displayTasks(boardList[position].boardId)
             }
-        }
+        })
     }
 
     private fun setWindowInsetsListener() {
@@ -169,9 +181,15 @@ class TaskboardsActivity : AppCompatActivity() {
             )
             // Asynchronously add the new board and get its ID
             dbHandler.addBoardItem(newBoard) { newBoardId ->
-                boardList.add(newBoard.copy(boardId = newBoardId))
+                val updatedBoard = newBoard.copy(boardId = newBoardId)
+                boardList.add(updatedBoard)
+                // Update ViewPager adapter with the new board
+                viewPager.adapter = boardPagerAdapter
+                viewPager.adapter?.notifyDataSetChanged()
+                // Re-setup TabLayout with ViewPager after updating the adapter
                 setupTabLayoutWithViewPager()
                 updateEmptyViewVisibility()
+                // Now add the task to the newly created board
                 addTaskToBoard(taskName, newBoardId, loggedInUserId)
             }
         } else {
@@ -198,8 +216,10 @@ class TaskboardsActivity : AppCompatActivity() {
 
     private fun displayTasks(boardId: String) {
         dbHandler.getTasksByBoardId(boardId) { tasks: List<TaskItem> ->
+            // Filter tasks to only include those that match the current board's ID
+            val filteredTasks = tasks.filter { it.boardId == boardId }
             // Sort tasks by createdAt timestamp or any other criteria if needed
-            val sortedTasks = tasks.sortedBy { it.createdAt }
+            val sortedTasks = filteredTasks.sortedBy { it.createdAt }
             val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
             val taskAdapter = TaskAdapter(sortedTasks) { task: TaskItem ->
                 dbHandler.deleteTaskItem(task.boardId, task.taskId) {
@@ -241,20 +261,29 @@ class TaskboardsActivity : AppCompatActivity() {
     private fun deleteBoard() {
         val currentItem = viewPager.currentItem
         // Delete the board from firestore
-        dbHandler.deleteBoardItem(boardList[viewPager.currentItem].boardId)
+        dbHandler.deleteBoardItem(boardList[currentItem].boardId)
         // Remove the board from your boardList
-        boardList.removeAt(viewPager.currentItem)
+        boardList.removeAt(currentItem)
         // Notify the adapter that the dataset has changed
-        boardPagerAdapter.notifyItemRemoved(viewPager.currentItem)
+        boardPagerAdapter.notifyItemRemoved(currentItem)
         if (boardList.isEmpty()) {
             viewPager.adapter = null
             tabLayoutMediator?.detach() // Detach TabLayoutMediator if no items are left
             tabLayoutMediator = null // Clear the TabLayoutMediator reference
+            clearAndHideTaskList() // Clear and hide the task list
         } else {
             boardPagerAdapter.notifyItemRemoved(currentItem)
             setupTabLayoutWithViewPager() // Re-setup TabLayout with ViewPager
         }
         updateEmptyViewVisibility()
+    }
+
+    private fun clearAndHideTaskList() {
+        // Find the RecyclerView and clear its adapter
+        val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
+        recyclerView.adapter = null
+        // Optionally, update visibility or show a placeholder
+        emptyView.visibility = View.VISIBLE
     }
 
     private fun showRenameDialog(position: Int) {
@@ -291,6 +320,7 @@ class TaskboardsActivity : AppCompatActivity() {
                 // After setting up the ViewPager and TabLayout, fetch and display tasks for the current board
                 displayTasksForCurrentBoard()
             }
+            setupViewPagerAndTabs()
             updateEmptyViewVisibility()
         }
     }
