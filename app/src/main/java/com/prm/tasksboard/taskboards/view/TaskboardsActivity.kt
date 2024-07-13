@@ -25,7 +25,6 @@ import com.prm.tasksboard.taskboards.entity.TaskItem
 import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
 import java.util.UUID
 import androidx.recyclerview.widget.RecyclerView
-import com.prm.tasksboard.taskboards.adapter.TaskAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 
 class TaskboardsActivity : AppCompatActivity() {
@@ -198,17 +197,21 @@ class TaskboardsActivity : AppCompatActivity() {
     }
 
     private fun displayTasks(boardId: String) {
-        // Fetch tasks associated with the boardId and current user ID
         dbHandler.getTasksByBoardId(boardId) { tasks: List<TaskItem> ->
-            // Check if the RecyclerView is already set up
+            // Sort tasks by createdAt timestamp or any other criteria if needed
+            val sortedTasks = tasks.sortedBy { it.createdAt }
             val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
+            val taskAdapter = TaskAdapter(sortedTasks) { task: TaskItem ->
+                dbHandler.deleteTaskItem(task.boardId, task.taskId) {
+                    // Fetch and display tasks again to update the UI
+                    displayTasks(boardId)
+                }
+            }
             if (recyclerView.adapter == null) {
-                // If not, set up the RecyclerView with LinearLayoutManager and TaskAdapter
                 recyclerView.layoutManager = LinearLayoutManager(this@TaskboardsActivity)
-                recyclerView.adapter = TaskAdapter(tasks)
+                recyclerView.adapter = taskAdapter
             } else {
-                // If the RecyclerView is already set up, update the adapter's data
-                (recyclerView.adapter as TaskAdapter).updateTasks(tasks)
+                (recyclerView.adapter as TaskAdapter).updateTasks(sortedTasks)
             }
         }
     }

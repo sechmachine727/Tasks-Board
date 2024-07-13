@@ -100,6 +100,16 @@ class DatabaseHandler {
             }
     }
 
+    fun deleteTaskItem(boardId: String, taskId: String, callback: () -> Unit) {
+        db.collection("boards").document(boardId).collection("tasks").document(taskId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("FirestoreDelete", "Task $taskId successfully deleted!")
+                callback()
+            }
+            .addOnFailureListener { e -> Log.w("FirestoreDelete", "Error deleting task", e) }
+    }
+
     fun getTasksByBoardId(boardId: String, callback: (List<TaskItem>) -> Unit) {
         db.collection("boards").document(boardId).collection("tasks")
             .whereEqualTo("user_id", loggedInUserId) // Ensure tasks are for the logged-in user
