@@ -166,8 +166,10 @@ class TaskboardsActivity : AppCompatActivity() {
         val taskNameInput = view.findViewById<EditText>(R.id.taskNameInput)
         val taskDescriptionInput = view.findViewById<EditText>(R.id.taskDescriptionInput)
         val dueDateTextView = view.findViewById<TextView>(R.id.dueDateTextView)
+        val priorityTextView = view.findViewById<TextView>(R.id.priorityTextView)
 
         var selectedDueDate = ""
+        var selectedPriority = ""
 
         dueDateTextView.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -185,6 +187,19 @@ class TaskboardsActivity : AppCompatActivity() {
 
             datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000 // Disallow past dates
             datePickerDialog.show()
+        }
+
+        priorityTextView.setOnClickListener {
+            val popupMenu = PopupMenu(this, priorityTextView)
+            popupMenu.menu.add("High")
+            popupMenu.menu.add("Medium")
+            popupMenu.menu.add("Low")
+            popupMenu.setOnMenuItemClickListener { item ->
+                selectedPriority = item.title.toString()
+                priorityTextView.text = selectedPriority
+                true
+            }
+            popupMenu.show()
         }
 
         builder.setView(view)
