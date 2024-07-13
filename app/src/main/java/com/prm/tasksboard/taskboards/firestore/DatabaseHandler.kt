@@ -2,33 +2,37 @@ package com.prm.tasksboard.taskboards.firestore
 
 import android.util.Log
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.prm.tasksboard.taskboards.entity.BoardItem
+import com.prm.tasksboard.taskboards.entity.TaskItem
 
 class DatabaseHandler {
     private val db = Firebase.firestore
     private val loggedInUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    fun addBoardItem(boardItem: BoardItem) {
-        // Firestore generates a unique ID for the new document
+    fun addBoardItem(boardItem: BoardItem, callback: (String) -> Unit) {
         val docRef = db.collection("boards").document()
-        boardItem.boardId = docRef.id // Assign the Firestore-generated ID to the boardItem
+        boardItem.boardId = docRef.id
+        boardItem.userId = loggedInUserId
+        boardItem.createdAt = Timestamp.now() // Set created_at to current time
 
         docRef.set(boardItem)
             .addOnSuccessListener {
-                Log.d("FirestoreAdd", "BoardItem successfully added with ID: ${docRef.id}")
+                callback(docRef.id) // Invoke the callback with the new board's ID
             }
             .addOnFailureListener { e ->
-                Log.w("FirestoreAdd", "Error adding BoardItem", e)
+                Log.w("DatabaseHandler", "Error adding BoardItem", e)
             }
     }
 
     fun getBoardItemsByUserId(): Task<QuerySnapshot> {
         return db.collection("boards")
-            .whereEqualTo("user_id", loggedInUserId).orderBy("created_at")
+            .whereEqualTo("user_id", loggedInUserId)
+            .orderBy("created_at")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
@@ -65,7 +69,7 @@ class DatabaseHandler {
     }
 
     fun checkFirestoreConnection() {
-        db.collection("boards") // Replace "known_collection" with your actual collection name
+        db.collection("boards")
             .whereEqualTo("user_id", loggedInUserId).limit(1)
             .get()
             .addOnSuccessListener { documents ->
@@ -77,6 +81,35 @@ class DatabaseHandler {
             }
             .addOnFailureListener { exception ->
                 Log.w("FirestoreCheck", "Error connecting to Firestore: ", exception)
+            }
+    }
+
+    fun addTaskItem(taskItem: TaskItem, boardId: String, callback: () -> Unit) {
+        val newTaskRef = db.collection("boards").document(boardId).collection("tasks").document()
+        taskItem.taskId = newTaskRef.id
+        taskItem.userId = loggedInUserId
+        taskItem.createdAt = Timestamp.now() // Set created_at to current time
+
+        newTaskRef.set(taskItem)
+            .addOnSuccessListener {
+                Log.d("FirestoreAdd", "TaskItem successfully added with ID: ${taskItem.taskId}")
+                callback()
+            }
+            .addOnFailureListener { e ->
+                Log.w("FirestoreAdd", "Error adding TaskItem", e)
+            }
+    }
+
+    fun getTasksByBoardId(boardId: String, callback: (List<TaskItem>) -> Unit) {
+        db.collection("boards").document(boardId).collection("tasks")
+            .whereEqualTo("user_id", loggedInUserId) // Ensure tasks are for the logged-in user
+            .get()
+            .addOnSuccessListener { documents ->
+                val tasks = documents.toObjects(TaskItem::class.java)
+                callback(tasks)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("DatabaseHandler", "Error getting tasks by board ID", exception)
             }
     }
 }

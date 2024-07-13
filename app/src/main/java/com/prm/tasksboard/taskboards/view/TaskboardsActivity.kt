@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -20,7 +21,12 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.prm.tasksboard.R
 import com.prm.tasksboard.taskboards.entity.BoardItem
+import com.prm.tasksboard.taskboards.entity.TaskItem
 import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
+import java.util.UUID
+import androidx.recyclerview.widget.RecyclerView
+import com.prm.tasksboard.taskboards.adapter.TaskAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 
 class TaskboardsActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
@@ -67,7 +73,7 @@ class TaskboardsActivity : AppCompatActivity() {
         fetchAndDisplayBoards()
 
         addBoardButton.setOnClickListener {
-            createNewBoard()
+            showAddTaskDialog() // Correctly placed inside onCreate
         }
 
         menuButton.setOnClickListener {
@@ -99,6 +105,17 @@ class TaskboardsActivity : AppCompatActivity() {
         }
     }
 
+    private fun countUserTasksAndShow() {
+        // Assuming the current board ID is needed to fetch tasks. Adjust if tasks are not board-specific.
+        val currentBoardId = boardList.getOrNull(viewPager.currentItem)?.boardId ?: return
+        dbHandler.getTasksByBoardId(currentBoardId) { tasks ->
+            val message = "This user currently has ${tasks.size} task(s)"
+            runOnUiThread {
+                Toast.makeText(this@TaskboardsActivity, message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun setWindowInsetsListener() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -126,6 +143,76 @@ class TaskboardsActivity : AppCompatActivity() {
         emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
     }
 
+    private fun showAddTaskDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Add New Task")
+
+        val input = EditText(this)
+        input.hint = "Enter task name"
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { _, _ ->
+            val taskName = input.text.toString()
+            addNewTask(taskName)
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
+    }
+
+    private fun addNewTask(taskName: String) {
+        if (boardList.isEmpty()) {
+            val newBoard = BoardItem(
+                createdAt = Timestamp.now(),
+                name = "Default Board",
+                updatedAt = Timestamp.now(),
+                userId = loggedInUserId
+            )
+            // Asynchronously add the new board and get its ID
+            dbHandler.addBoardItem(newBoard) { newBoardId ->
+                boardList.add(newBoard.copy(boardId = newBoardId))
+                setupTabLayoutWithViewPager()
+                updateEmptyViewVisibility()
+                addTaskToBoard(taskName, newBoardId, loggedInUserId)
+            }
+        } else {
+            val currentBoardId = boardList[viewPager.currentItem].boardId
+            addTaskToBoard(taskName, currentBoardId, loggedInUserId)
+        }
+    }
+
+    private fun addTaskToBoard(taskName: String, boardId: String, userId: String) {
+        val newTask = TaskItem(
+            taskId = UUID.randomUUID().toString(),
+            boardId = boardId,
+            title = taskName,
+            description = "",
+            status = "Pending",
+            dueDate = "",
+            priority = "Normal",
+            userId = loggedInUserId // Assign the logged-in user's ID to the task
+        )
+        dbHandler.addTaskItem(newTask, boardId) {
+            displayTasks(boardId)
+        }
+    }
+
+    private fun displayTasks(boardId: String) {
+        // Fetch tasks associated with the boardId and current user ID
+        dbHandler.getTasksByBoardId(boardId) { tasks: List<TaskItem> ->
+            // Check if the RecyclerView is already set up
+            val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
+            if (recyclerView.adapter == null) {
+                // If not, set up the RecyclerView with LinearLayoutManager and TaskAdapter
+                recyclerView.layoutManager = LinearLayoutManager(this@TaskboardsActivity)
+                recyclerView.adapter = TaskAdapter(tasks)
+            } else {
+                // If the RecyclerView is already set up, update the adapter's data
+                (recyclerView.adapter as TaskAdapter).updateTasks(tasks)
+            }
+        }
+    }
+
     private fun createNewBoard() {
         // Create a new BoardItem
         val newBoard = BoardItem(
@@ -137,7 +224,8 @@ class TaskboardsActivity : AppCompatActivity() {
         // Add it to your boardList
         boardList.add(newBoard)
         // Add it to Firestore
-        dbHandler.addBoardItem(newBoard)
+        dbHandler.addBoardItem(newBoard) { newBoardId ->
+        }
         if (boardList.size == 1) { // If this is the first board being added
             viewPager.adapter = boardPagerAdapter
             setupTabLayoutWithViewPager() // Re-setup TabLayout with ViewPager
@@ -197,8 +285,18 @@ class TaskboardsActivity : AppCompatActivity() {
                 // Notify adapter about the range of items inserted
                 boardPagerAdapter.notifyItemRangeInserted(startPosition, newItems.size)
                 setupTabLayoutWithViewPager()
+                // After setting up the ViewPager and TabLayout, fetch and display tasks for the current board
+                displayTasksForCurrentBoard()
             }
             updateEmptyViewVisibility()
+        }
+    }
+
+    private fun displayTasksForCurrentBoard() {
+        // Ensure there's at least one board to fetch tasks for
+        if (boardList.isNotEmpty()) {
+            val currentBoardId = boardList[viewPager.currentItem].boardId
+            displayTasks(currentBoardId)
         }
     }
 }
