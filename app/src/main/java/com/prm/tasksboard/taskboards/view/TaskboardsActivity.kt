@@ -1,6 +1,7 @@
 package com.prm.tasksboard.taskboards.view
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,9 @@ import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
 import java.util.UUID
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class TaskboardsActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
@@ -161,6 +165,28 @@ class TaskboardsActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.dialog_add_task, null)
         val taskNameInput = view.findViewById<EditText>(R.id.taskNameInput)
         val taskDescriptionInput = view.findViewById<EditText>(R.id.taskDescriptionInput)
+        val dueDateTextView = view.findViewById<TextView>(R.id.dueDateTextView)
+
+        var selectedDueDate = ""
+
+        dueDateTextView.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val datePickerDialog = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
+                // Format the selected date and display it on the TextView
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(year, monthOfYear, dayOfMonth)
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                selectedDueDate = dateFormat.format(selectedDate.time)
+                dueDateTextView.text = selectedDueDate
+            }, year, month, day)
+
+            datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000 // Disallow past dates
+            datePickerDialog.show()
+        }
+
         builder.setView(view)
 
         builder.setPositiveButton("OK") { _, _ ->
