@@ -87,9 +87,6 @@ class DatabaseHandler {
     fun addTaskItem(taskItem: TaskItem, boardId: String, callback: () -> Unit) {
         val newTaskRef = db.collection("boards").document(boardId).collection("tasks").document()
         taskItem.taskId = newTaskRef.id
-        taskItem.userId = loggedInUserId
-        taskItem.createdAt = Timestamp.now() // Set created_at to current time
-
         newTaskRef.set(taskItem)
             .addOnSuccessListener {
                 Log.d("FirestoreAdd", "TaskItem successfully added with ID: ${taskItem.taskId}")
@@ -112,7 +109,6 @@ class DatabaseHandler {
 
     fun getTasksByBoardId(boardId: String, callback: (List<TaskItem>) -> Unit) {
         db.collection("boards").document(boardId).collection("tasks")
-            .whereEqualTo("user_id", loggedInUserId) // Ensure tasks are for the logged-in user
             .get()
             .addOnSuccessListener { documents ->
                 val tasks = documents.toObjects(TaskItem::class.java)
@@ -120,6 +116,23 @@ class DatabaseHandler {
             }
             .addOnFailureListener { exception ->
                 Log.w("DatabaseHandler", "Error getting tasks by board ID", exception)
+            }
+    }
+
+    fun updateTaskItem(
+        boardId: String,
+        taskId: String,
+        updatedFields: Map<String, Any>,
+        callback: () -> Unit
+    ) {
+        db.collection("boards").document(boardId).collection("tasks").document(taskId)
+            .update(updatedFields)
+            .addOnSuccessListener {
+                Log.d("FirestoreUpdate", "Task $taskId successfully updated!")
+                callback()
+            }
+            .addOnFailureListener { e ->
+                Log.w("FirestoreUpdate", "Error updating task", e)
             }
     }
 }
