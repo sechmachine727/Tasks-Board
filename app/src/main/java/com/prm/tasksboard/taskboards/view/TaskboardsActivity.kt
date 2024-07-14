@@ -3,7 +3,6 @@ package com.prm.tasksboard.taskboards.view
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -52,7 +51,6 @@ class TaskboardsActivity : AppCompatActivity() {
         menuButton = findViewById(R.id.menuButton)
         emptyView = findViewById(R.id.emptyView)
         recyclerView = findViewById(R.id.tasksRecyclerView)
-
         recyclerView.layoutManager = LinearLayoutManager(this)
         taskAdapter = TaskAdapter(tasks) { taskItem -> onTaskFinished(taskItem) }
         recyclerView.adapter = taskAdapter
