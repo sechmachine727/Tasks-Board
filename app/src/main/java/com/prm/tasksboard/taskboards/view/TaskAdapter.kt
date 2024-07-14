@@ -10,6 +10,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.prm.tasksboard.R
 import com.prm.tasksboard.taskboards.entity.TaskItem
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished: (TaskItem) -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
@@ -18,18 +21,14 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
             val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
             val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
             val taskDetailsLayout = itemView.findViewById<LinearLayout>(R.id.taskDetailsLayout)
+            val descriptionView = itemView.findViewById<TextView>(R.id.taskDescriptionTextView)
+            val dueDateView = itemView.findViewById<TextView>(R.id.taskDueDateTextView)
+            val priorityView = itemView.findViewById<TextView>(R.id.taskPriorityTextView)
 
             titleView.text = task.title
-
-            itemView.setOnClickListener {
-                val intent = Intent(context, TaskDetailActivity::class.java).apply {
-                    putExtra("taskName", task.title)
-                    putExtra("taskDescription", task.description)
-                    putExtra("taskDueDate", task.dueDate)
-                    putExtra("taskPriority", task.priority)
-                }
-                context.startActivity(intent)
-            }
+            descriptionView.text = task.description
+            dueDateView.text = convertTimestampToString(task.dueDate) // Convert Timestamp to String
+            priorityView.text = task.priority
 
             expandArrowImageView.setOnClickListener {
                 if (taskDetailsLayout.visibility == View.GONE) {
@@ -40,6 +39,11 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
                     expandArrowImageView.setImageResource(R.drawable.ic_arrow_right)
                 }
             }
+        }
+
+        private fun convertTimestampToString(timestamp: Timestamp): String {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            return sdf.format(timestamp.toDate())
         }
     }
 
