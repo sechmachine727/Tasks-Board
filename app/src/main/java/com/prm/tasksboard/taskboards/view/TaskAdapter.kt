@@ -4,7 +4,8 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.prm.tasksboard.R
@@ -14,19 +15,11 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
 
     class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(task: TaskItem, onTaskFinished: (TaskItem) -> Unit, context: android.content.Context) {
-            val titleView = itemView.findViewById<TextView>(R.id.taskTitle)
-            val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
+            val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
+            val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
+            val taskDetailsLayout = itemView.findViewById<LinearLayout>(R.id.taskDetailsLayout)
 
             titleView.text = task.title
-            checkBox.setOnCheckedChangeListener(null) // Clear previous listeners
-            checkBox.isChecked = task.status == "Finished"
-            checkBox.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    // Update task status to "Finished" before deletion
-                    task.status = "Finished"
-                    onTaskFinished(task)
-                }
-            }
 
             itemView.setOnClickListener {
                 val intent = Intent(context, TaskDetailActivity::class.java).apply {
@@ -36,6 +29,16 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
                     putExtra("taskPriority", task.priority)
                 }
                 context.startActivity(intent)
+            }
+
+            expandArrowImageView.setOnClickListener {
+                if (taskDetailsLayout.visibility == View.GONE) {
+                    taskDetailsLayout.visibility = View.VISIBLE
+                    expandArrowImageView.setImageResource(R.drawable.ic_arrow_down)
+                } else {
+                    taskDetailsLayout.visibility = View.GONE
+                    expandArrowImageView.setImageResource(R.drawable.ic_arrow_right)
+                }
             }
         }
     }
