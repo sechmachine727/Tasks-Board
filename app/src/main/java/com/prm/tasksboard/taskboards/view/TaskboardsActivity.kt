@@ -13,6 +13,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
@@ -23,9 +25,6 @@ import com.prm.tasksboard.R
 import com.prm.tasksboard.taskboards.entity.BoardItem
 import com.prm.tasksboard.taskboards.entity.TaskItem
 import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
-import java.util.UUID
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.LinearLayoutManager
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -158,127 +157,6 @@ class TaskboardsActivity : AppCompatActivity() {
         emptyView.visibility = if (boardList.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun showAddTaskDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Add New Task")
-
-        val view = layoutInflater.inflate(R.layout.dialog_add_task, null)
-        val taskNameInput = view.findViewById<EditText>(R.id.taskNameInput)
-        val taskDescriptionInput = view.findViewById<EditText>(R.id.taskDescriptionInput)
-        val dueDateTextView = view.findViewById<TextView>(R.id.dueDateTextView)
-        val priorityTextView = view.findViewById<TextView>(R.id.priorityTextView)
-
-        var selectedDueDate = ""
-        var selectedPriority = ""
-
-        dueDateTextView.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val datePickerDialog = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
-                // Format the selected date and display it on the TextView
-                val selectedDate = Calendar.getInstance()
-                selectedDate.set(year, monthOfYear, dayOfMonth)
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                selectedDueDate = dateFormat.format(selectedDate.time)
-                dueDateTextView.text = selectedDueDate
-            }, year, month, day)
-
-            datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000 // Disallow past dates
-            datePickerDialog.show()
-        }
-
-        priorityTextView.setOnClickListener {
-            val popupMenu = PopupMenu(this, priorityTextView)
-            popupMenu.menu.add("High")
-            popupMenu.menu.add("Medium")
-            popupMenu.menu.add("Low")
-            popupMenu.setOnMenuItemClickListener { item ->
-                selectedPriority = item.title.toString()
-                priorityTextView.text = selectedPriority
-                true
-            }
-            popupMenu.show()
-        }
-
-        builder.setView(view)
-
-        builder.setPositiveButton("OK") { _, _ ->
-            val taskName = taskNameInput.text.toString()
-            val taskDescription = taskDescriptionInput.text.toString()
-            addNewTask(taskName, taskDescription)
-        }
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-
-        builder.show()
-    }
-
-    private fun addNewTask(taskName: String, taskDescription: String) {
-        if (boardList.isEmpty()) {
-            val newBoard = BoardItem(
-                createdAt = Timestamp.now(),
-                name = "Default Board",
-                updatedAt = Timestamp.now(),
-                userId = loggedInUserId
-            )
-            // Asynchronously add the new board and get its ID
-            dbHandler.addBoardItem(newBoard) { newBoardId ->
-                val updatedBoard = newBoard.copy(boardId = newBoardId)
-                boardList.add(updatedBoard)
-                // Update ViewPager adapter with the new board
-                viewPager.adapter = boardPagerAdapter
-                viewPager.adapter?.notifyDataSetChanged()
-                // Re-setup TabLayout with ViewPager after updating the adapter
-                setupTabLayoutWithViewPager()
-                updateEmptyViewVisibility()
-                // Now add the task to the newly created board
-                addTaskToBoard(taskName, newBoardId, loggedInUserId, taskDescription)
-            }
-        } else {
-            val currentBoardId = boardList[viewPager.currentItem].boardId
-            addTaskToBoard(taskName, currentBoardId, loggedInUserId, taskDescription)
-        }
-    }
-
-    private fun addTaskToBoard(taskName: String, boardId: String, userId: String, description: String) {
-        val newTask = TaskItem(
-            taskId = UUID.randomUUID().toString(),
-            boardId = boardId,
-            title = taskName,
-            description = description, // Now correctly references the parameter
-            status = "Pending",
-            dueDate = "",
-            priority = "Normal",
-            userId = loggedInUserId // Assign the logged-in user's ID to the task
-        )
-        dbHandler.addTaskItem(newTask, boardId) {
-            displayTasks(boardId)
-        }
-    }
-
-    private fun displayTasks(boardId: String) {
-        dbHandler.getTasksByBoardId(boardId) { tasks: List<TaskItem> ->
-            // Filter tasks to only include those that match the current board's ID
-            val filteredTasks = tasks.filter { it.boardId == boardId }
-            // Sort tasks by createdAt timestamp or any other criteria if needed
-            val sortedTasks = filteredTasks.sortedBy { it.createdAt }
-            val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
-            val taskAdapter = TaskAdapter(sortedTasks) { task: TaskItem ->
-                dbHandler.deleteTaskItem(task.boardId, task.taskId) {
-                    // Fetch and display tasks again to update the UI
-                    displayTasks(boardId)
-                }
-            }
-            if (recyclerView.adapter == null) {
-                recyclerView.layoutManager = LinearLayoutManager(this@TaskboardsActivity)
-                recyclerView.adapter = taskAdapter
-            } else {
-                (recyclerView.adapter as TaskAdapter).updateTasks(sortedTasks)
-            }
-        }
-    }
-
     private fun createNewBoard() {
         // Create a new BoardItem
         val newBoard = BoardItem(
@@ -291,6 +169,7 @@ class TaskboardsActivity : AppCompatActivity() {
         boardList.add(newBoard)
         // Add it to Firestore
         dbHandler.addBoardItem(newBoard) { newBoardId ->
+            boardList[boardList.size - 1].boardId = newBoardId
         }
         if (boardList.size == 1) { // If this is the first board being added
             viewPager.adapter = boardPagerAdapter
@@ -356,6 +235,7 @@ class TaskboardsActivity : AppCompatActivity() {
             val newItems = result.map { document ->
                 document.toObject(BoardItem::class.java)
             }
+                .sortedBy { it.createdAt } // Sort by createdAt timestamp or change it to another attribute like name
             boardList.addAll(newItems)
             if (boardList.isNotEmpty()) {
                 // Notify adapter about the range of items inserted
@@ -366,6 +246,121 @@ class TaskboardsActivity : AppCompatActivity() {
             }
             setupViewPagerAndTabs()
             updateEmptyViewVisibility()
+        }
+    }
+
+    private fun showAddTaskDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Add New Task")
+
+        val view = layoutInflater.inflate(R.layout.dialog_add_task, null)
+        val taskNameInput = view.findViewById<EditText>(R.id.taskNameInput)
+        val taskDescriptionInput = view.findViewById<EditText>(R.id.taskDescriptionInput)
+        val dueDateTextView = view.findViewById<TextView>(R.id.dueDateTextView)
+        val priorityTextView = view.findViewById<TextView>(R.id.priorityTextView)
+
+        var selectedDueDate = ""
+        var selectedPriority = ""
+
+        dueDateTextView.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val datePickerDialog = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
+                // Format the selected date and display it on the TextView
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(year, monthOfYear, dayOfMonth)
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                selectedDueDate = dateFormat.format(selectedDate.time)
+                dueDateTextView.text = selectedDueDate
+            }, year, month, day)
+
+            datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000 // Disallow past dates
+            datePickerDialog.show()
+        }
+
+        priorityTextView.setOnClickListener {
+            val popupMenu = PopupMenu(this, priorityTextView)
+            popupMenu.menu.add("High")
+            popupMenu.menu.add("Medium")
+            popupMenu.menu.add("Low")
+            popupMenu.setOnMenuItemClickListener { item ->
+                selectedPriority = item.title.toString()
+                priorityTextView.text = selectedPriority
+                true
+            }
+            popupMenu.show()
+        }
+
+        builder.setView(view)
+
+        builder.setPositiveButton("OK") { _, _ ->
+            val taskName = taskNameInput.text.toString()
+            val taskDescription = taskDescriptionInput.text.toString()
+            addNewTask(taskName, taskDescription)
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
+    }
+
+    private fun addNewTask(taskName: String, taskDescription: String) {
+        if (boardList.isEmpty()) {
+            val newBoard = BoardItem(
+                createdAt = Timestamp.now(),
+                name = "New Board #${boardList.size + 1}",
+                updatedAt = Timestamp.now(),
+                userId = loggedInUserId,
+            )
+            // Asynchronously add the new board and get its ID
+            dbHandler.addBoardItem(newBoard) { newBoardId ->
+                val updatedBoard = newBoard.copy(boardId = newBoardId)
+                boardList.add(updatedBoard)
+                // Update ViewPager adapter with the new board
+                viewPager.adapter = boardPagerAdapter
+                viewPager.adapter?.notifyItemInserted(boardList.size - 1)
+                // Re-setup TabLayout with ViewPager after updating the adapter
+                setupTabLayoutWithViewPager()
+                updateEmptyViewVisibility()
+                // Now add the task to the newly created board
+                addTaskToBoard(taskName, newBoardId, taskDescription)
+            }
+        } else {
+            val currentBoardId = boardList[viewPager.currentItem].boardId
+            addTaskToBoard(taskName, currentBoardId, taskDescription)
+        }
+    }
+
+    private fun addTaskToBoard(taskName: String, boardId: String, description: String) {
+        val newTask = TaskItem(
+            title = taskName,
+            description = description, // Now correctly references the parameter
+            status = "Pending",
+            dueDate = Timestamp(
+                Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }.time
+            ), // Due date is set to tomorrow
+            priority = "Normal",
+            createdAt = Timestamp.now(),
+        )
+        dbHandler.addTaskItem(newTask, boardId) {
+            displayTasks(boardId)
+        }
+    }
+
+    private fun displayTasks(boardId: String) {
+        dbHandler.getTasksByBoardId(boardId) { tasks: List<TaskItem> ->
+            // Sort tasks by createdAt timestamp or any other criteria if needed
+            val sortedTasks = tasks.sortedBy { it.createdAt }
+            val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
+            val taskAdapter = TaskAdapter(sortedTasks) { _: TaskItem ->
+            }
+            if (recyclerView.adapter == null) {
+                recyclerView.layoutManager = LinearLayoutManager(this@TaskboardsActivity)
+                recyclerView.adapter = taskAdapter
+            } else {
+                (recyclerView.adapter as TaskAdapter).updateTasks(sortedTasks)
+            }
         }
     }
 
