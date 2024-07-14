@@ -12,16 +12,28 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:paddingTop="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="0dp">
+
+        <CheckBox
+            android:id="@+id/taskCheckBox"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/taskSummaryTextView"
+            app:layout_constraintBottom_toBottomOf="@+id/taskSummaryTextView" />
 
         <TextView
             android:id="@+id/taskSummaryTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="280dp"
+            android:layout_height="20dp"
             android:text="Task Summary"
+            app:layout_constraintEnd_toStartOf="@+id/expandArrowImageView"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/expandArrowImageView" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/expandArrowImageView"
@@ -39,6 +51,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
+            android:paddingLeft="16dp"
             app:layout_constraintTop_toBottomOf="@+id/taskSummaryTextView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -47,21 +60,21 @@
                 android:id="@+id/taskDescriptionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Task Description"
+                android:text="Description: "
                 android:paddingTop="8dp"/>
 
             <TextView
                 android:id="@+id/taskDueDateTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Due Date"
+                android:text="Due date: "
                 android:paddingTop="4dp"/>
 
             <TextView
                 android:id="@+id/taskPriorityTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Priority"
+                android:text="Priority: "
                 android:paddingTop="4dp"/>
 
         </LinearLayout>

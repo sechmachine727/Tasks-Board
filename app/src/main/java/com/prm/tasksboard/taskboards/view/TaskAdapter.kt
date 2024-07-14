@@ -16,7 +16,7 @@ import java.util.Locale
 class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished: (TaskItem) -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(task: TaskItem, onTaskFinished: (TaskItem) -> Unit, context: android.content.Context) {
+        fun bind(task: TaskItem) {
             val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
             val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
             val taskDetailsLayout = itemView.findViewById<LinearLayout>(R.id.taskDetailsLayout)
@@ -25,9 +25,9 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
             val priorityView = itemView.findViewById<TextView>(R.id.taskPriorityTextView)
 
             titleView.text = task.title
-            descriptionView.text = task.description
-            dueDateView.text = convertTimestampToString(task.dueDate) // Convert Timestamp to String
-            priorityView.text = task.priority
+            descriptionView.text = itemView.context.getString(R.string.task_description, task.description)
+            dueDateView.text = itemView.context.getString(R.string.task_due_date, convertTimestampToString(task.dueDate))
+            priorityView.text = itemView.context.getString(R.string.task_priority, task.priority)
 
             expandArrowImageView.setOnClickListener {
                 if (taskDetailsLayout.visibility == View.GONE) {
@@ -52,7 +52,7 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.bind(tasks[position], onTaskFinished, holder.itemView.context)
+        holder.bind(tasks[position])
     }
 
     override fun getItemCount() = tasks.size
