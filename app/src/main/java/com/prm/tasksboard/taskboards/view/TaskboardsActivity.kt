@@ -2,11 +2,14 @@ package com.prm.tasksboard.taskboards.view
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridView
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.SearchView
@@ -23,6 +26,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.prm.tasksboard.R
+import com.prm.tasksboard.authentication.LoginActivity
 import com.prm.tasksboard.taskboards.entity.BoardItem
 import com.prm.tasksboard.taskboards.entity.TaskItem
 import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
@@ -38,6 +42,7 @@ class TaskboardsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var searchView: SearchView
+    private lateinit var gridView: GridView
     private val boardList = mutableListOf<BoardItem>()
     private val tasks = mutableListOf<TaskItem>()
     private val loggedInUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -55,6 +60,7 @@ class TaskboardsActivity : AppCompatActivity() {
         addBoardButton = findViewById(R.id.addTaskButton)
         menuButton = findViewById(R.id.menuButton)
         emptyView = findViewById(R.id.emptyView)
+        gridView = findViewById(R.id.boardsGridView)
         recyclerView = findViewById(R.id.tasksRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         searchView = findViewById(R.id.searchView)
@@ -107,12 +113,17 @@ class TaskboardsActivity : AppCompatActivity() {
                         deleteBoard()
                         true
                     }
+                    R.id.change_account -> {
+                        triggerChangeAccount()
+                        true
+                    }
                     else -> false
                 }
             }
             popupMenu.show()
         }
     }
+
 
     private fun setupSearchView() {
         findViewById<ImageButton>(R.id.searchButton).setOnClickListener {
