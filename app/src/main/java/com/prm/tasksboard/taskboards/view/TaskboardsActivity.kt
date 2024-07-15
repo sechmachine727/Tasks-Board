@@ -52,7 +52,15 @@ class TaskboardsActivity : AppCompatActivity() {
         emptyView = findViewById(R.id.emptyView)
         recyclerView = findViewById(R.id.tasksRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        taskAdapter = TaskAdapter(tasks) { taskItem -> onTaskFinished(taskItem) }
+        taskAdapter = TaskAdapter(tasks, { taskItem ->
+            // This lambda is for handling task finish action, which might not be relevant to onTaskStatusChanged directly.
+            // You might need to adjust this part based on your actual requirements.
+        }, { taskItem ->
+            // Assuming this lambda is for handling the status change of tasks.
+            dbHandler.updateTaskItem(currentBoardId!!, taskItem.taskId, mapOf("status" to taskItem.status)) {
+                // Handle database update success or failure
+            }
+        })
         recyclerView.adapter = taskAdapter
 
         dbHandler.checkFirestoreConnection()
@@ -228,10 +236,10 @@ class TaskboardsActivity : AppCompatActivity() {
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val datePickerDialog = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
-                // Format the selected date and display it on the TextView
+            val datePickerDialog = DatePickerDialog(this, { _, yearSelected, monthOfYear, dayOfMonth ->
+                // Use yearSelected instead of year
                 val selectedDate = Calendar.getInstance()
-                selectedDate.set(year, monthOfYear, dayOfMonth)
+                selectedDate.set(yearSelected, monthOfYear, dayOfMonth)
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 selectedDueDate = dateFormat.format(selectedDate.time)
                 dueDateTextView.text = selectedDueDate
@@ -312,8 +320,11 @@ class TaskboardsActivity : AppCompatActivity() {
         currentBoardId?.let { boardId ->
             dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
                 // Optionally, update UI or remove task from list
-                tasks.find { it.taskId == taskItem.taskId }?.status = "finished"
-                taskAdapter.notifyDataSetChanged() // Refresh UI to reflect changes
+                val taskIndex = tasks.indexOfFirst { it.taskId == taskItem.taskId }
+                if (taskIndex != -1) {
+                    tasks[taskIndex].status = "finished"
+                    taskAdapter.notifyItemChanged(taskIndex) // Refresh UI to reflect changes
+                }
             }
         }
 
