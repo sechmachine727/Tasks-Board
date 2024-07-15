@@ -16,9 +16,14 @@ import java.util.Locale
 import android.util.Log
 import android.widget.PopupMenu
 
-class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished: (TaskItem) -> Unit, private val onTaskStatusChanged: (TaskItem) -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter(
+    private var tasks: List<TaskItem>,
+    private val onTaskFinished: (TaskItem) -> Unit,
+    private val onTaskStatusChanged: (TaskItem) -> Unit,
+    private val onEditTask: (TaskItem) -> Unit
+) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
         private val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
         private val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
@@ -30,7 +35,9 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
 
         init {
             moreOptionsImageView.setOnClickListener { v ->
-                showPopupMenu(v)
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    showPopupMenu(v, tasks[adapterPosition]) // Pass the current task item
+                }
             }
         }
 
@@ -60,17 +67,17 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
             }
         }
 
-        private fun showPopupMenu(view: View) {
+        private fun showPopupMenu(view: View, task: TaskItem) {
             val popup = PopupMenu(view.context, view)
-            popup.inflate(R.menu.task_options_menu) // Assume you have task_options_menu.xml in res/menu
+            popup.inflate(R.menu.task_options_menu) // Inflate your menu resource
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.edit_task -> {
-                        // Placeholder for edit task action
+                        onEditTask(task) // Call the lambda function for edit task
                         true
                     }
                     R.id.delete_task -> {
-                        // Placeholder for delete task action
+                        // Handle delete task action
                         true
                     }
                     else -> false

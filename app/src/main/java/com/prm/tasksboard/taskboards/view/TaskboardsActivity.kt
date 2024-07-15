@@ -53,13 +53,12 @@ class TaskboardsActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.tasksRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         taskAdapter = TaskAdapter(tasks, { taskItem ->
-            // This lambda is for handling task finish action, which might not be relevant to onTaskStatusChanged directly.
-            // You might need to adjust this part based on your actual requirements.
+            // Handle task finish action here
         }, { taskItem ->
-            // Assuming this lambda is for handling the status change of tasks.
-            dbHandler.updateTaskItem(currentBoardId!!, taskItem.taskId, mapOf("status" to taskItem.status)) {
-                // Handle database update success or failure
-            }
+            // Handle task status change here
+        }, { taskItem ->
+            // Handle edit task action here, for example, show the edit task dialog
+            showEditTaskDialog(taskItem)
         })
         recyclerView.adapter = taskAdapter
 
@@ -314,27 +313,41 @@ class TaskboardsActivity : AppCompatActivity() {
         }
     }
 
-    private fun onTaskFinished(taskItem: TaskItem) {
-        // Update task status in Firestore
-        val updatedFields = mapOf("status" to "finished")
-        currentBoardId?.let { boardId ->
-            dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
-                // Optionally, update UI or remove task from list
-                val taskIndex = tasks.indexOfFirst { it.taskId == taskItem.taskId }
-                if (taskIndex != -1) {
-                    tasks[taskIndex].status = "finished"
-                    taskAdapter.notifyItemChanged(taskIndex) // Refresh UI to reflect changes
+    private fun showEditTaskDialog(taskItem: TaskItem) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Edit Task")
+
+        val view = layoutInflater.inflate(R.layout.dialog_add_task, null)
+        val taskNameInput = view.findViewById<EditText>(R.id.taskNameInput)
+        val taskDescriptionInput = view.findViewById<EditText>(R.id.taskDescriptionInput)
+        val dueDateTextView = view.findViewById<TextView>(R.id.dueDateTextView)
+        val priorityTextView = view.findViewById<TextView>(R.id.priorityTextView)
+
+        // Populate dialog with task details
+        taskNameInput.setText(taskItem.title)
+        taskDescriptionInput.setText(taskItem.description)
+        dueDateTextView.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(taskItem.dueDate.toDate())
+        priorityTextView.text = taskItem.priority
+
+        // Set click listeners for date and priority selection, similar to showAddTaskDialog()
+
+        builder.setView(view)
+
+        builder.setPositiveButton("OK") { _, _ ->
+            // Update task with new details
+            val updatedFields = mapOf(
+                "title" to taskNameInput.text.toString(),
+                "description" to taskDescriptionInput.text.toString(),
+                // Convert dueDateTextView and priorityTextView back to their respective formats
+            )
+            currentBoardId?.let { boardId ->
+                dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
+                    // Handle update success
                 }
             }
         }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
-        // Show confirmation dialog
-        AlertDialog.Builder(this)
-            .setTitle("Task Finished")
-            .setMessage("Task ${taskItem.title} finished.")
-            .setPositiveButton("OK") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+        builder.show()
     }
 }
