@@ -9,4 +9,5 @@
     <string name="task_priority">Priority: %1$s</string>
     <string name="search">Search</string>
     <string name="board_overview">Overview</string>
+    <string name="menu">Menu</string>
 </resources>
