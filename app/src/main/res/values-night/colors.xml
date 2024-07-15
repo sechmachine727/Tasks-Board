@@ -1,3 +1,4 @@
 <resources>
-    <color name="cardBackgroundColor">#333333</color> <!-- Dark theme color -->
+    <color name="cardBackgroundColor">#333333</color>
+    <color name="iconColor">#FFFFFF</color>
 </resources>

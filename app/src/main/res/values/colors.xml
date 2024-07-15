@@ -6,4 +6,5 @@
     <color name="status_finished">#008000</color>
     <color name="status_not_finished">#FF0000</color>
     <color name="cardBackgroundColor">#F5F5F5</color>
+    <color name="iconColor">#000000</color>
 </resources>
