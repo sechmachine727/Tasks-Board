@@ -22,20 +22,20 @@
         android:id="@+id/dueDateTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Due Date"
-        android:padding="16dp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true" />
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Select Due Date" />
 
     <TextView
         android:id="@+id/priorityTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Priority"
-        android:padding="16dp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true" />
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Select Priority" />
 
 </LinearLayout>
