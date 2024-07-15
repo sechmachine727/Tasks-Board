@@ -326,8 +326,36 @@ class TaskboardsActivity : AppCompatActivity() {
         // Populate dialog with task details
         taskNameInput.setText(taskItem.title)
         taskDescriptionInput.setText(taskItem.description)
-        dueDateTextView.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(taskItem.dueDate.toDate())
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        dueDateTextView.text = sdf.format(taskItem.dueDate.toDate())
         priorityTextView.text = taskItem.priority
+
+        // Due Date Picker
+        dueDateTextView.setOnClickListener {
+            val calendar = Calendar.getInstance().apply {
+                time = taskItem.dueDate.toDate()
+            }
+            DatePickerDialog(this, { _, year, month, dayOfMonth ->
+                val newDate = Calendar.getInstance()
+                newDate.set(year, month, dayOfMonth)
+                selectedDueDate = sdf.format(newDate.time)
+                dueDateTextView.text = selectedDueDate
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+        }
+
+        // Priority Selection
+        priorityTextView.setOnClickListener {
+            val popupMenu = PopupMenu(this, priorityTextView)
+            popupMenu.menu.add("High")
+            popupMenu.menu.add("Medium")
+            popupMenu.menu.add("Low")
+            popupMenu.setOnMenuItemClickListener { item ->
+                selectedPriority = item.title.toString()
+                priorityTextView.text = selectedPriority
+                true
+            }
+            popupMenu.show()
+        }
 
         builder.setView(view)
 
@@ -336,7 +364,8 @@ class TaskboardsActivity : AppCompatActivity() {
             val updatedFields = mapOf(
                 "title" to taskNameInput.text.toString(),
                 "description" to taskDescriptionInput.text.toString(),
-                // Convert dueDateTextView and priorityTextView back to their respective formats
+                "due_date" to Timestamp(sdf.parse(selectedDueDate) ?: taskItem.dueDate.toDate()),
+                "priority" to selectedPriority
             )
             currentBoardId?.let { boardId ->
                 dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
@@ -346,7 +375,8 @@ class TaskboardsActivity : AppCompatActivity() {
                         tasks[taskIndex].apply {
                             title = taskNameInput.text.toString()
                             description = taskDescriptionInput.text.toString()
-                            // Update other fields as necessary
+                            dueDate = Timestamp(sdf.parse(selectedDueDate) ?: dueDate.toDate())
+                            priority = selectedPriority
                         }
                         // Notify the adapter to refresh the item
                         taskAdapter.notifyItemChanged(taskIndex)
