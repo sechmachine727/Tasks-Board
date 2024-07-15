@@ -82,6 +82,14 @@ class TaskboardsActivity : AppCompatActivity() {
         })
         recyclerView.adapter = taskAdapter
 
+        gridView = GridView(this).apply {
+            numColumns = 2
+            verticalSpacing = 10
+            horizontalSpacing = 10
+            setPadding(16, 16, 16, 16) // Add padding
+            clipToPadding = false
+        }
+
         dbHandler.checkFirestoreConnection()
 
         setTabLayoutListeners()
@@ -127,6 +135,7 @@ class TaskboardsActivity : AppCompatActivity() {
         overviewButton.setOnClickListener {
             showOverviewPopup(currentBoardId)
         }
+
     }
 
 
@@ -137,7 +146,7 @@ class TaskboardsActivity : AppCompatActivity() {
             adjustRecyclerViewTopConstraint(!isSearchViewVisible)
             if (!isSearchViewVisible) {
                 searchView.requestFocusFromTouch()
-                searchView.setIconified(false)
+                searchView.isIconified = false
             }
         }
 
