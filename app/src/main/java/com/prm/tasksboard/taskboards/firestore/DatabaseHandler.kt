@@ -119,6 +119,27 @@ class DatabaseHandler {
             }
     }
 
+    fun getAllTasks(callback: (List<TaskItem>) -> Unit) {
+        val allTasks = mutableListOf<TaskItem>()
+        db.collection("boards").get().addOnSuccessListener { boardDocuments ->
+            val boardCount = boardDocuments.size()
+            var processedBoards = 0
+            if (boardCount == 0) callback(allTasks) // Immediately return if no boards
+
+            boardDocuments.forEach { boardDoc ->
+                db.collection("boards").document(boardDoc.id).collection("tasks").get()
+                    .addOnSuccessListener { taskDocuments ->
+                        val tasks = taskDocuments.toObjects(TaskItem::class.java)
+                        allTasks.addAll(tasks)
+                        processedBoards++
+                        if (processedBoards == boardCount) {
+                            callback(allTasks)
+                        }
+                    }
+            }
+        }
+    }
+
     fun updateTaskItem(
         boardId: String,
         taskId: String,

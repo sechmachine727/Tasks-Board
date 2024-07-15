@@ -6,10 +6,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +36,7 @@ class TaskboardsActivity : AppCompatActivity() {
     private lateinit var emptyView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var taskAdapter: TaskAdapter
+    private lateinit var searchView: SearchView
     private val boardList = mutableListOf<BoardItem>()
     private val tasks = mutableListOf<TaskItem>()
     private val loggedInUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -52,6 +56,8 @@ class TaskboardsActivity : AppCompatActivity() {
         emptyView = findViewById(R.id.emptyView)
         recyclerView = findViewById(R.id.tasksRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
+        searchView = findViewById(R.id.searchView)
+        setupSearchView()
         taskAdapter = TaskAdapter(tasks, { taskItem ->
             // Handle task finish action here
         }, { taskItem ->
@@ -104,6 +110,41 @@ class TaskboardsActivity : AppCompatActivity() {
                 }
             }
             popupMenu.show()
+        }
+    }
+
+    private fun setupSearchView() {
+        findViewById<ImageButton>(R.id.searchButton).setOnClickListener {
+            val isSearchViewVisible = searchView.visibility == View.VISIBLE
+            searchView.visibility = if (isSearchViewVisible) View.GONE else View.VISIBLE
+            adjustRecyclerViewTopConstraint(!isSearchViewVisible)
+        }
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { searchForTask(it) }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let { searchForTask(it) }
+                return true
+            }
+        })
+    }
+
+    private fun adjustRecyclerViewTopConstraint(isSearchViewVisible: Boolean) {
+        val layoutParams = recyclerView.layoutParams as ConstraintLayout.LayoutParams
+        layoutParams.topToBottom = if (isSearchViewVisible) R.id.searchView else R.id.tabLayout
+        recyclerView.layoutParams = layoutParams
+    }
+
+    private fun searchForTask(query: String) {
+        dbHandler.getAllTasks { allTasks: List<TaskItem> ->
+            val filteredTasks = allTasks.filter { it.title.contains(query, ignoreCase = true) }
+            tasks.clear()
+            tasks.addAll(filteredTasks)
+            taskAdapter.notifyDataSetChanged()
         }
     }
 
