@@ -57,8 +57,14 @@ class TaskboardsActivity : AppCompatActivity() {
         }, { taskItem ->
             // Handle task status change here
         }, { taskItem ->
-            // Handle edit task action here, for example, show the edit task dialog
+            // Handle edit task action here
             showEditTaskDialog(taskItem)
+        }, { taskItem ->
+            // Handle delete task action here
+            dbHandler.deleteTaskItem(currentBoardId!!, taskItem.taskId) {
+                tasks.remove(taskItem)
+                taskAdapter.notifyDataSetChanged()
+            }
         })
         recyclerView.adapter = taskAdapter
 

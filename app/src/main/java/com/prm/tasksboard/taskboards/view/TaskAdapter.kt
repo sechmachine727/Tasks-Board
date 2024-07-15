@@ -20,7 +20,8 @@ class TaskAdapter(
     private var tasks: List<TaskItem>,
     private val onTaskFinished: (TaskItem) -> Unit,
     private val onTaskStatusChanged: (TaskItem) -> Unit,
-    private val onEditTask: (TaskItem) -> Unit
+    private val onEditTask: (TaskItem) -> Unit,
+    private val onDeleteTask: (TaskItem) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -77,7 +78,7 @@ class TaskAdapter(
                         true
                     }
                     R.id.delete_task -> {
-                        // Handle delete task action
+                        onDeleteTask(task)
                         true
                     }
                     else -> false
