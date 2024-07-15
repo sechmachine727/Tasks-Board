@@ -4,13 +4,17 @@
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_corner_border"
     android:orientation="vertical"
-    android:padding="8dp"> <!-- Set the rounded corner border as background -->
+    android:padding="16dp"> <!-- Set the rounded corner border as background -->
 
     <TextView
         android:id="@+id/boardNameTextView"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="16sp" />
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:layout_margin="8dp"/>
 
 </LinearLayout>
