@@ -2,6 +2,7 @@ package com.prm.tasksboard.taskboards.view
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -19,6 +20,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.prm.tasksboard.R
+import com.prm.tasksboard.authentication.LoginActivity
 import com.prm.tasksboard.taskboards.entity.BoardItem
 import com.prm.tasksboard.taskboards.entity.TaskItem
 import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
@@ -100,7 +102,10 @@ class TaskboardsActivity : AppCompatActivity() {
                         deleteBoard()
                         true
                     }
-
+                    R.id.change_user -> {
+                        signOutUser()
+                        true
+                    }
                     else -> false
                 }
             }
@@ -393,5 +398,15 @@ class TaskboardsActivity : AppCompatActivity() {
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
         builder.show()
+    }
+
+    private fun signOutUser() {
+        FirebaseAuth.getInstance().signOut()
+        // Assuming you have a LoginActivity that handles user login
+        val intent = Intent(this, LoginActivity::class.java)
+        // Clear the task stack to prevent the user coming back to TaskboardsActivity on pressing back button
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

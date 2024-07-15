@@ -5,5 +5,5 @@
         android:title="Add Board" />
     <item
         android:id="@+id/change_user"
-        android:title="Change User" />
+        android:title="Sign out" />
 </menu>
