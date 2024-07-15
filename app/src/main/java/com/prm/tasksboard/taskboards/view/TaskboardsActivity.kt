@@ -221,17 +221,24 @@ class TaskboardsActivity : AppCompatActivity() {
     private fun deleteBoard() {
         currentBoardId?.let { boardId ->
             val currentItem = boardList.indexOfFirst { it.boardId == boardId }
+
             // Delete the board from firestore
             dbHandler.deleteBoardItem(boardId)
+
             // Remove the board from your boardList
             boardList.removeAt(currentItem)
-            // Notify the adapter that the dataset has changed
+
+            // Notify the adapter (if any) that the dataset has changed
+            tabLayout.removeAllTabs() // Clear existing tabs
+
             if (boardList.isEmpty()) {
                 clearAndHideTaskList() // Clear and hide the task list
             } else {
+                // Rebuild tabs
                 setupTabLayout()
                 displayTasksForCurrentBoard()
             }
+
             updateEmptyViewVisibility()
         }
     }
@@ -280,9 +287,11 @@ class TaskboardsActivity : AppCompatActivity() {
             val tab = tabLayout.newTab().setText(board.name)
             tabLayout.addTab(tab)
         }
-        if (boardList.isNotEmpty()) {
-            currentBoardId = boardList[0].boardId
-            displayTasksForCurrentBoard()
+        if (boardList.isNotEmpty() && currentBoardId != null) {
+            val currentTabIndex = boardList.indexOfFirst { it.boardId == currentBoardId }
+            if (currentTabIndex != -1) {
+                tabLayout.getTabAt(currentTabIndex)?.select()
+            }
         }
     }
 
@@ -348,6 +357,32 @@ class TaskboardsActivity : AppCompatActivity() {
 
 
     private fun addNewTask(taskName: String, taskDescription: String, selectedDueDate: String, selectedPriority: String) {
+        if (boardList.isEmpty()) {
+            val newBoard = BoardItem(
+                createdAt = Timestamp.now(),
+                name = "Default Board",
+                updatedAt = Timestamp.now(),
+                userId = loggedInUserId
+            )
+            dbHandler.addBoardItem(newBoard) { newBoardId ->
+                newBoard.boardId = newBoardId
+                runOnUiThread {
+                    boardList.add(newBoard)
+                    currentBoardId = newBoardId
+                    setupTabLayout() // Update TabLayout with the new board
+                    tabLayout.getTabAt(tabLayout.tabCount - 1)?.select()
+                    tasks.clear()
+                    taskAdapter.notifyDataSetChanged()
+                    addTaskToBoard(taskName, taskDescription, selectedDueDate, selectedPriority) // Now add the task
+                    displayTasks(newBoardId)
+                }
+            }
+        } else {
+            addTaskToBoard(taskName, taskDescription, selectedDueDate, selectedPriority)
+        }
+    }
+
+    private fun addTaskToBoard(taskName: String, taskDescription: String, selectedDueDate: String, selectedPriority: String) {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dueDate = if (selectedDueDate.isNotEmpty()) {
             sdf.parse(selectedDueDate)?.let { Timestamp(it) } ?: Timestamp.now()
@@ -365,8 +400,11 @@ class TaskboardsActivity : AppCompatActivity() {
 
         currentBoardId?.let { boardId ->
             dbHandler.addTaskItem(newTask, boardId) {
-                tasks.add(newTask) // Add the new task to the list
-                taskAdapter.notifyItemInserted(tasks.size - 1) // Notify the adapter that an item has been added
+                tasks.add(newTask) // Add the new task to the local list
+                runOnUiThread {
+                    taskAdapter.notifyItemInserted(tasks.size - 1)
+                    displayTasks(boardId) // Ensure this method is called to refresh the task list UI
+                }
             }
         }
     }
@@ -381,7 +419,9 @@ class TaskboardsActivity : AppCompatActivity() {
         dbHandler.getTasksByBoardId(boardId) { result ->
             tasks.clear() // Clear existing tasks
             tasks.addAll(result) // Add all fetched tasks
-            taskAdapter.notifyDataSetChanged() // Notify adapter to refresh UI
+            runOnUiThread {
+                taskAdapter.notifyDataSetChanged() // Notify adapter to refresh UI
+            }
         }
     }
 
