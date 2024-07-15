@@ -14,19 +14,27 @@ import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Locale
 import android.util.Log
+import android.widget.PopupMenu
 
 class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished: (TaskItem) -> Unit, private val onTaskStatusChanged: (TaskItem) -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(task: TaskItem, onTaskStatusChanged: (TaskItem) -> Unit) {
-            val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
-            val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
-            val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
-            val taskDetailsLayout = itemView.findViewById<LinearLayout>(R.id.taskDetailsLayout)
-            val descriptionView = itemView.findViewById<TextView>(R.id.taskDescriptionTextView)
-            val dueDateView = itemView.findViewById<TextView>(R.id.taskDueDateTextView)
-            val priorityView = itemView.findViewById<TextView>(R.id.taskPriorityTextView)
+        private val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
+        private val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
+        private val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
+        private val taskDetailsLayout = itemView.findViewById<LinearLayout>(R.id.taskDetailsLayout)
+        private val descriptionView = itemView.findViewById<TextView>(R.id.taskDescriptionTextView)
+        private val dueDateView = itemView.findViewById<TextView>(R.id.taskDueDateTextView)
+        private val priorityView = itemView.findViewById<TextView>(R.id.taskPriorityTextView)
+        private val moreOptionsImageView = itemView.findViewById<ImageView>(R.id.moreOptionsImageView)
 
+        init {
+            moreOptionsImageView.setOnClickListener { v ->
+                showPopupMenu(v)
+            }
+        }
+
+        fun bind(task: TaskItem, onTaskStatusChanged: (TaskItem) -> Unit) {
             checkBox.isChecked = task.status == "finished"
             titleView.text = task.title
             descriptionView.text = itemView.context.getString(R.string.task_description, task.description)
@@ -50,6 +58,25 @@ class TaskAdapter(private var tasks: List<TaskItem>, private val onTaskFinished:
                     expandArrowImageView.setImageResource(R.drawable.ic_arrow_right)
                 }
             }
+        }
+
+        private fun showPopupMenu(view: View) {
+            val popup = PopupMenu(view.context, view)
+            popup.inflate(R.menu.task_options_menu) // Assume you have task_options_menu.xml in res/menu
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.edit_task -> {
+                        // Placeholder for edit task action
+                        true
+                    }
+                    R.id.delete_task -> {
+                        // Placeholder for delete task action
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
         }
 
         private fun convertTimestampToString(timestamp: Timestamp): String {
