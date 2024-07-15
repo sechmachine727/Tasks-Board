@@ -120,6 +120,10 @@ class TaskboardsActivity : AppCompatActivity() {
             val isSearchViewVisible = searchView.visibility == View.VISIBLE
             searchView.visibility = if (isSearchViewVisible) View.GONE else View.VISIBLE
             adjustRecyclerViewTopConstraint(!isSearchViewVisible)
+            if (!isSearchViewVisible) {
+                searchView.requestFocus()
+                searchView.setIconified(false) // This will expand the SearchView to show the input field and request focus.
+            }
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
