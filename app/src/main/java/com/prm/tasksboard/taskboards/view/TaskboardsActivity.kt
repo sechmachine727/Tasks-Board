@@ -11,7 +11,6 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -53,7 +52,7 @@ class TaskboardsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_taskboards)
         setWindowInsetsListener()
         tabLayout = findViewById(R.id.tabLayout)
-        addBoardButton = findViewById(R.id.addBoardButton)
+        addBoardButton = findViewById(R.id.addTaskButton)
         menuButton = findViewById(R.id.menuButton)
         emptyView = findViewById(R.id.emptyView)
         recyclerView = findViewById(R.id.tasksRecyclerView)
@@ -120,10 +119,6 @@ class TaskboardsActivity : AppCompatActivity() {
             val isSearchViewVisible = searchView.visibility == View.VISIBLE
             searchView.visibility = if (isSearchViewVisible) View.GONE else View.VISIBLE
             adjustRecyclerViewTopConstraint(!isSearchViewVisible)
-            if (!isSearchViewVisible) {
-                searchView.requestFocus()
-                searchView.setIconified(false) // This will expand the SearchView to show the input field and request focus.
-            }
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -284,7 +279,6 @@ class TaskboardsActivity : AppCompatActivity() {
         selectedDueDate = ""
         selectedPriority = ""
 
-        // Due Date Picker setup
         dueDateTextView.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -302,7 +296,6 @@ class TaskboardsActivity : AppCompatActivity() {
             }
         }
 
-        // Priority Selection setup
         priorityTextView.setOnClickListener {
             val popupMenu = PopupMenu(this, priorityTextView)
             popupMenu.menu.add("High")
@@ -318,17 +311,10 @@ class TaskboardsActivity : AppCompatActivity() {
 
         builder.setView(view)
 
-        builder.setPositiveButton("OK") { dialog, _ ->
+        builder.setPositiveButton("OK") { _, _ ->
             val taskName = taskNameInput.text.toString()
             val taskDescription = taskDescriptionInput.text.toString()
-
-            if (taskName.isEmpty() || taskDescription.isEmpty() || selectedDueDate.isEmpty() || selectedPriority.isEmpty()) {
-                Toast.makeText(this, "All fields must be filled out", Toast.LENGTH_SHORT).show()
-                dialog.dismiss() // Dismiss and reopen the dialog for correction
-                showAddTaskDialog()
-            } else {
-                addNewTask(taskName, taskDescription)
-            }
+            addNewTask(taskName, taskDescription)
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
@@ -392,28 +378,20 @@ class TaskboardsActivity : AppCompatActivity() {
         dueDateTextView.text = sdf.format(taskItem.dueDate.toDate())
         priorityTextView.text = taskItem.priority
 
-        selectedDueDate = sdf.format(taskItem.dueDate.toDate())
-        selectedPriority = taskItem.priority
-
+        // Due Date Picker
         dueDateTextView.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            if (selectedDueDate.isNotEmpty()) {
-                calendar.time = sdf.parse(selectedDueDate) ?: calendar.time
+            val calendar = Calendar.getInstance().apply {
+                time = taskItem.dueDate.toDate()
             }
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            DatePickerDialog(this, { _, yearSelected, monthOfYear, dayOfMonth ->
-                val selectedDate = Calendar.getInstance()
-                selectedDate.set(yearSelected, monthOfYear, dayOfMonth)
-                selectedDueDate = sdf.format(selectedDate.time)
+            DatePickerDialog(this, { _, year, month, dayOfMonth ->
+                val newDate = Calendar.getInstance()
+                newDate.set(year, month, dayOfMonth)
+                selectedDueDate = sdf.format(newDate.time)
                 dueDateTextView.text = selectedDueDate
-            }, year, month, day).apply {
-                datePicker.minDate = System.currentTimeMillis() - 1000
-                show()
-            }
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
         }
 
+        // Priority Selection
         priorityTextView.setOnClickListener {
             val popupMenu = PopupMenu(this, priorityTextView)
             popupMenu.menu.add("High")
@@ -429,46 +407,33 @@ class TaskboardsActivity : AppCompatActivity() {
 
         builder.setView(view)
 
-        builder.setPositiveButton("OK") { dialog, _ ->
-            val taskName = taskNameInput.text.toString()
-            val taskDescription = taskDescriptionInput.text.toString()
-
-            // Parse the selectedDueDate to a Timestamp
-            val dueDateToUse: Timestamp = if (selectedDueDate.isNotEmpty()) {
-                sdf.parse(selectedDueDate)?.let { Timestamp(it) } ?: taskItem.dueDate
+        builder.setPositiveButton("OK") { _, _ ->
+            // Update task with new details
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val dueDateToUse = if (selectedDueDate.isNotEmpty()) {
+                sdf.parse(selectedDueDate) ?: taskItem.dueDate.toDate()
             } else {
-                taskItem.dueDate // Use existing due date as fallback
+                taskItem.dueDate.toDate() // Use existing due date as fallback
             }
-
-            // Ensure priority is a var or correctly handled if it's a val
-            val priorityToUse = selectedPriority
-
-            if (taskName.isEmpty() || taskDescription.isEmpty() || selectedDueDate.isEmpty() || selectedPriority.isEmpty()) {
-                Toast.makeText(this, "All fields must be filled out", Toast.LENGTH_SHORT).show()
-                dialog.dismiss() // Dismiss and reopen the dialog for correction
-                showEditTaskDialog(taskItem)
-            } else {
-                // Update task with new details
-                val updatedFields = mapOf(
-                    "title" to taskName,
-                    "description" to taskDescription,
-                    "due_date" to dueDateToUse,
-                    "priority" to priorityToUse
-                )
-                currentBoardId?.let { boardId ->
-                    dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
-                        // Find the task in the local list and update it
-                        val taskIndex = tasks.indexOfFirst { it.taskId == taskItem.taskId }
-                        if (taskIndex != -1) {
-                            tasks[taskIndex].apply {
-                                title = taskName
-                                description = taskDescription
-                                dueDate = dueDateToUse
-                                priority = priorityToUse
-                            }
-                            // Notify the adapter to refresh the item
-                            taskAdapter.notifyItemChanged(taskIndex)
+            val updatedFields = mapOf(
+                "title" to taskNameInput.text.toString(),
+                "description" to taskDescriptionInput.text.toString(),
+                "due_date" to Timestamp(dueDateToUse),
+                "priority" to selectedPriority
+            )
+            currentBoardId?.let { boardId ->
+                dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
+                    // Find the task in the local list and update it
+                    val taskIndex = tasks.indexOfFirst { it.taskId == taskItem.taskId }
+                    if (taskIndex != -1) {
+                        tasks[taskIndex].apply {
+                            title = taskNameInput.text.toString()
+                            description = taskDescriptionInput.text.toString()
+                            dueDate = Timestamp(dueDateToUse)
+                            priority = selectedPriority
                         }
+                        // Notify the adapter to refresh the item
+                        taskAdapter.notifyItemChanged(taskIndex)
                     }
                 }
             }
@@ -476,5 +441,41 @@ class TaskboardsActivity : AppCompatActivity() {
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
         builder.show()
+    }
+
+    private fun showOverviewPopup(currentBoardId: String?) {
+        val boardsSorted = boardList.sortedBy { it.createdAt }
+        val adapter = BoardAdapter(this, boardsSorted, currentBoardId)
+        gridView.adapter = adapter
+
+        // Check if gridView has a parent, and remove it from that parent if necessary
+        (gridView.parent as? ViewGroup)?.removeView(gridView)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(gridView)
+            .create()
+
+        gridView.setOnItemClickListener { _, _, position, _ ->
+            dialog.dismiss()
+            val selectedBoardId = boardsSorted[position].boardId
+            jumpToBoard(selectedBoardId)
+        }
+
+        dialog.show()
+        gridView.setSelection(boardsSorted.indexOfFirst { it.boardId == currentBoardId }) // Scroll to current board
+    }
+
+    private fun jumpToBoard(boardId: String) {
+        // Assuming each tab in the TabLayout corresponds to a board
+        val tabIndex = boardList.indexOfFirst { it.boardId == boardId }
+        if (tabIndex != -1) {
+            tabLayout.getTabAt(tabIndex)?.select()
+        }
+    }
+
+    private fun triggerChangeAccount() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.putExtra("action", "changeAccount")
+        startActivity(intent)
     }
 }

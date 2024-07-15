@@ -1,4 +1,8 @@
 <resources>
     <color name="cardBackgroundColor">#333333</color>
     <color name="iconColor">#FFFFFF</color>
+    <color name="border_color">#BDBDBD</color> <!-- Lighter grey for dark mode -->
+    <color name="selected_item_background">#FFC390F2</color> <!-- Light purple for dark mode -->
+    <color name="selected_text_color">#FFFFFF</color> <!-- White text color for dark mode -->
+    <color name="default_text_color">#FFFFFF</color> <!-- White text color for dark mode -->
 </resources>

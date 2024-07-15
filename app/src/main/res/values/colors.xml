@@ -7,4 +7,8 @@
     <color name="status_not_finished">#FF0000</color>
     <color name="cardBackgroundColor">#F5F5F5</color>
     <color name="iconColor">#000000</color>
+    <color name="border_color">#757575</color> <!-- Darker grey for light mode -->
+    <color name="selected_item_background">#C390F2FF</color> <!-- Light cyan for light mode -->
+    <color name="selected_text_color">#000000</color> <!-- Black text color for light mode -->
+    <color name="default_text_color">#000000</color>
 </resources>
