@@ -3,6 +3,7 @@ package com.prm.tasksboard.taskboards.view
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -140,8 +141,10 @@ class TaskboardsActivity : AppCompatActivity() {
     }
 
     private fun searchForTask(query: String) {
-        dbHandler.getAllTasks { allTasks: List<TaskItem> ->
+        Log.d("TaskSearch", "Searching for tasks with query: $query in board ID: $currentBoardId")
+        dbHandler.getTasksByBoardId(currentBoardId!!) { allTasks: List<TaskItem> ->
             val filteredTasks = allTasks.filter { it.title.contains(query, ignoreCase = true) }
+            Log.d("TaskSearch", "Found ${filteredTasks.size} tasks matching the query in the current board.")
             tasks.clear()
             tasks.addAll(filteredTasks)
             taskAdapter.notifyDataSetChanged()
@@ -407,10 +410,16 @@ class TaskboardsActivity : AppCompatActivity() {
 
         builder.setPositiveButton("OK") { _, _ ->
             // Update task with new details
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val dueDateToUse = if (selectedDueDate.isNotEmpty()) {
+                sdf.parse(selectedDueDate) ?: taskItem.dueDate.toDate()
+            } else {
+                taskItem.dueDate.toDate() // Use existing due date as fallback
+            }
             val updatedFields = mapOf(
                 "title" to taskNameInput.text.toString(),
                 "description" to taskDescriptionInput.text.toString(),
-                "due_date" to Timestamp(sdf.parse(selectedDueDate) ?: taskItem.dueDate.toDate()),
+                "due_date" to Timestamp(dueDateToUse),
                 "priority" to selectedPriority
             )
             currentBoardId?.let { boardId ->
@@ -421,7 +430,7 @@ class TaskboardsActivity : AppCompatActivity() {
                         tasks[taskIndex].apply {
                             title = taskNameInput.text.toString()
                             description = taskDescriptionInput.text.toString()
-                            dueDate = Timestamp(sdf.parse(selectedDueDate) ?: dueDate.toDate())
+                            dueDate = Timestamp(dueDateToUse)
                             priority = selectedPriority
                         }
                         // Notify the adapter to refresh the item
