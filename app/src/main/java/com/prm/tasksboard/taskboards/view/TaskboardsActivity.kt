@@ -434,4 +434,16 @@ class TaskboardsActivity : AppCompatActivity() {
 
         builder.show()
     }
+
+    public fun setupSelectedTabLayout(position: Int) {
+        tabLayout.removeAllTabs()
+        boardList.forEach { board ->
+            val tab = tabLayout.newTab().setText(board.name)
+            tabLayout.addTab(tab)
+        }
+        if (boardList.isNotEmpty()) {
+            currentBoardId = boardList[position].boardId
+            displayTasksForCurrentBoard()
+        }
+    }
 }

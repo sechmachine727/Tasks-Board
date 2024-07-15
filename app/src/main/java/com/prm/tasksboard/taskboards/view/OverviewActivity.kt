@@ -13,6 +13,7 @@ class OverviewActivity : AppCompatActivity() {
     lateinit var boardGridView: GridView
     private var boardList = mutableListOf<BoardItem>()
     private val dbHandler = DatabaseHandler()
+    val taskboardsActivity = TaskboardsActivity()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.grid_outer)
@@ -29,6 +30,9 @@ class OverviewActivity : AppCompatActivity() {
         boardGridView.adapter = gridAdapter
         boardGridView.setOnItemClickListener { _, _, position, _ ->
             Toast.makeText( applicationContext, boardList[position].name + " selected", Toast.LENGTH_SHORT).show()
+            taskboardsActivity.setupSelectedTabLayout(position)
         }
     }
+
+
 }
