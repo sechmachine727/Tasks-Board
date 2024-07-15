@@ -1,20 +1,20 @@
 package com.prm.tasksboard.taskboards.view
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Timestamp
 import com.prm.tasksboard.R
 import com.prm.tasksboard.taskboards.entity.TaskItem
-import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Locale
-import android.util.Log
-import android.widget.PopupMenu
 
 class TaskAdapter(
     private var tasks: List<TaskItem>,
@@ -26,12 +26,14 @@ class TaskAdapter(
     inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
         private val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
-        private val expandArrowImageView = itemView.findViewById<ImageView>(R.id.expandArrowImageView)
+        private val expandArrowImageView =
+            itemView.findViewById<ImageView>(R.id.expandArrowImageView)
         private val taskDetailsLayout = itemView.findViewById<LinearLayout>(R.id.taskDetailsLayout)
         private val descriptionView = itemView.findViewById<TextView>(R.id.taskDescriptionTextView)
         private val dueDateView = itemView.findViewById<TextView>(R.id.taskDueDateTextView)
         private val priorityView = itemView.findViewById<TextView>(R.id.taskPriorityTextView)
-        private val moreOptionsImageView = itemView.findViewById<ImageView>(R.id.moreOptionsImageView)
+        private val moreOptionsImageView =
+            itemView.findViewById<ImageView>(R.id.moreOptionsImageView)
 
         init {
             moreOptionsImageView.setOnClickListener { v ->
@@ -44,8 +46,12 @@ class TaskAdapter(
         fun bind(task: TaskItem, onTaskStatusChanged: (TaskItem) -> Unit) {
             checkBox.isChecked = task.status == "finished"
             titleView.text = task.title
-            descriptionView.text = itemView.context.getString(R.string.task_description, task.description)
-            dueDateView.text = itemView.context.getString(R.string.task_due_date, convertTimestampToString(task.dueDate))
+            descriptionView.text =
+                itemView.context.getString(R.string.task_description, task.description)
+            dueDateView.text = itemView.context.getString(
+                R.string.task_due_date,
+                convertTimestampToString(task.dueDate)
+            )
             priorityView.text = itemView.context.getString(R.string.task_priority, task.priority)
 
             checkBox.setOnCheckedChangeListener { _, isChecked ->
@@ -76,10 +82,12 @@ class TaskAdapter(
                         onEditTask(task) // Call the lambda function for edit task
                         true
                     }
+
                     R.id.delete_task -> {
                         // Handle delete task action
                         true
                     }
+
                     else -> false
                 }
             }

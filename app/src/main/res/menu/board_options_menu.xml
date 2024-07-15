@@ -5,4 +5,7 @@
     <item
         android:id="@+id/delete_board"
         android:title="Delete Board" />
+    <item
+        android:id="@+id/change_account"
+        android:title="Change Account" />
 </menu>

@@ -4,8 +4,10 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridView
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -28,11 +30,13 @@ import java.util.Locale
 
 class TaskboardsActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
-    private lateinit var addBoardButton: Button
+    private lateinit var addTaskButton: Button
     private lateinit var menuButton: MaterialButton
+    private lateinit var overviewButton: MaterialButton
     private lateinit var emptyView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var taskAdapter: TaskAdapter
+    private lateinit var gridView: GridView
     private val boardList = mutableListOf<BoardItem>()
     private val tasks = mutableListOf<TaskItem>()
     private val loggedInUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -47,8 +51,9 @@ class TaskboardsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_taskboards)
         setWindowInsetsListener()
         tabLayout = findViewById(R.id.tabLayout)
-        addBoardButton = findViewById(R.id.addBoardButton)
+        addTaskButton = findViewById(R.id.addTaskButton)
         menuButton = findViewById(R.id.menuButton)
+        overviewButton = findViewById(R.id.overviewButton)
         emptyView = findViewById(R.id.emptyView)
         recyclerView = findViewById(R.id.tasksRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -62,6 +67,14 @@ class TaskboardsActivity : AppCompatActivity() {
         })
         recyclerView.adapter = taskAdapter
 
+        gridView = GridView(this).apply {
+            numColumns = 2
+            verticalSpacing = 10
+            horizontalSpacing = 10
+            setPadding(16, 16, 16, 16) // Add padding
+            clipToPadding = false
+        }
+
         dbHandler.checkFirestoreConnection()
 
         setTabLayoutListeners()
@@ -69,8 +82,12 @@ class TaskboardsActivity : AppCompatActivity() {
 
         fetchAndDisplayBoards()
 
-        addBoardButton.setOnClickListener {
+        addTaskButton.setOnClickListener {
             showAddTaskDialog()
+        }
+
+        overviewButton.setOnClickListener {
+            showOverviewPopup(currentBoardId)
         }
 
         menuButton.setOnClickListener {
@@ -235,16 +252,18 @@ class TaskboardsActivity : AppCompatActivity() {
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val datePickerDialog = DatePickerDialog(this, { _, yearSelected, monthOfYear, dayOfMonth ->
-                // Use yearSelected instead of year
-                val selectedDate = Calendar.getInstance()
-                selectedDate.set(yearSelected, monthOfYear, dayOfMonth)
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                selectedDueDate = dateFormat.format(selectedDate.time)
-                dueDateTextView.text = selectedDueDate
-            }, year, month, day)
+            val datePickerDialog =
+                DatePickerDialog(this, { _, yearSelected, monthOfYear, dayOfMonth ->
+                    // Use yearSelected instead of year
+                    val selectedDate = Calendar.getInstance()
+                    selectedDate.set(yearSelected, monthOfYear, dayOfMonth)
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    selectedDueDate = dateFormat.format(selectedDate.time)
+                    dueDateTextView.text = selectedDueDate
+                }, year, month, day)
 
-            datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000 // Disallow past dates
+            datePickerDialog.datePicker.minDate =
+                System.currentTimeMillis() - 1000 // Disallow past dates
             datePickerDialog.show()
         }
 
@@ -326,7 +345,8 @@ class TaskboardsActivity : AppCompatActivity() {
         // Populate dialog with task details
         taskNameInput.setText(taskItem.title)
         taskDescriptionInput.setText(taskItem.description)
-        dueDateTextView.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(taskItem.dueDate.toDate())
+        dueDateTextView.text =
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(taskItem.dueDate.toDate())
         priorityTextView.text = taskItem.priority
 
         builder.setView(view)
@@ -357,5 +377,35 @@ class TaskboardsActivity : AppCompatActivity() {
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
         builder.show()
+    }
+
+    private fun showOverviewPopup(currentBoardId: String?) {
+        val boardsSorted = boardList.sortedBy { it.createdAt }
+        val adapter = BoardAdapter(this, boardsSorted, currentBoardId)
+        gridView.adapter = adapter
+
+        // Check if gridView has a parent, and remove it from that parent if necessary
+        (gridView.parent as? ViewGroup)?.removeView(gridView)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(gridView)
+            .create()
+
+        gridView.setOnItemClickListener { _, _, position, _ ->
+            dialog.dismiss()
+            val selectedBoardId = boardsSorted[position].boardId
+            jumpToBoard(selectedBoardId)
+        }
+
+        dialog.show()
+        gridView.setSelection(boardsSorted.indexOfFirst { it.boardId == currentBoardId }) // Scroll to current board
+    }
+
+    private fun jumpToBoard(boardId: String) {
+        // Assuming each tab in the TabLayout corresponds to a board
+        val tabIndex = boardList.indexOfFirst { it.boardId == boardId }
+        if (tabIndex != -1) {
+            tabLayout.getTabAt(tabIndex)?.select()
+        }
     }
 }

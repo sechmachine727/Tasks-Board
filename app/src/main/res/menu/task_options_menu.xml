@@ -1,8 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/edit_task"
-        android:title="Edit Task"/>
+        android:title="Edit Task" />
     <item
         android:id="@+id/delete_task"
-        android:title="Delete Task"/>
+        android:title="Delete Task" />
 </menu>
