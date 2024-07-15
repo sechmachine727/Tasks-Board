@@ -2,6 +2,7 @@ package com.prm.tasksboard.taskboards.view
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -25,6 +26,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.prm.tasksboard.R
+import com.prm.tasksboard.authentication.LoginActivity
 import com.prm.tasksboard.taskboards.entity.BoardItem
 import com.prm.tasksboard.taskboards.entity.TaskItem
 import com.prm.tasksboard.taskboards.firestore.DatabaseHandler
@@ -122,6 +124,11 @@ class TaskboardsActivity : AppCompatActivity() {
 
                     R.id.delete_board -> {
                         deleteBoard()
+                        true
+                    }
+
+                    R.id.change_account -> {
+                        triggerChangeAccount()
                         true
                     }
 
@@ -253,6 +260,7 @@ class TaskboardsActivity : AppCompatActivity() {
             val newName = input.text.toString()
             boardList[position].name = newName
             tabLayout.getTabAt(position)?.text = newName
+            dbHandler.updateBoardItem(boardList[position].boardId, mapOf("name" to newName))
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
@@ -492,5 +500,11 @@ class TaskboardsActivity : AppCompatActivity() {
         if (tabIndex != -1) {
             tabLayout.getTabAt(tabIndex)?.select()
         }
+    }
+
+    private fun triggerChangeAccount() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.putExtra("action", "changeAccount")
+        startActivity(intent)
     }
 }
