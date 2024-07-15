@@ -329,8 +329,6 @@ class TaskboardsActivity : AppCompatActivity() {
         dueDateTextView.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(taskItem.dueDate.toDate())
         priorityTextView.text = taskItem.priority
 
-        // Set click listeners for date and priority selection, similar to showAddTaskDialog()
-
         builder.setView(view)
 
         builder.setPositiveButton("OK") { _, _ ->
@@ -342,7 +340,17 @@ class TaskboardsActivity : AppCompatActivity() {
             )
             currentBoardId?.let { boardId ->
                 dbHandler.updateTaskItem(boardId, taskItem.taskId, updatedFields) {
-                    // Handle update success
+                    // Find the task in the local list and update it
+                    val taskIndex = tasks.indexOfFirst { it.taskId == taskItem.taskId }
+                    if (taskIndex != -1) {
+                        tasks[taskIndex].apply {
+                            title = taskNameInput.text.toString()
+                            description = taskDescriptionInput.text.toString()
+                            // Update other fields as necessary
+                        }
+                        // Notify the adapter to refresh the item
+                        taskAdapter.notifyItemChanged(taskIndex)
+                    }
                 }
             }
         }
