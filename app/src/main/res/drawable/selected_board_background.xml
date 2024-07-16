@@ -1,0 +1,8 @@
+<!-- app/src/main/res/drawable/selected_board_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/selected_item_background" /> <!-- Selected item background color -->
+    <stroke
+        android:width="2dp"
+        android:color="@color/border_color" /> <!-- Keep the border color consistent -->
+    <corners android:radius="10dp" />
+</shape>

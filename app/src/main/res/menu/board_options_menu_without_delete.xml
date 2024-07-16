@@ -3,4 +3,7 @@
     <item
         android:id="@+id/add_board"
         android:title="Add Board" />
+    <item
+        android:id="@+id/change_account"
+        android:title="Change Account" />
 </menu>
