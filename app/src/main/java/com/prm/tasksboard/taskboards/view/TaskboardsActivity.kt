@@ -84,9 +84,9 @@ class TaskboardsActivity : AppCompatActivity() {
 
         gridView = GridView(this).apply {
             numColumns = 2
-            verticalSpacing = 10
-            horizontalSpacing = 10
-            setPadding(16, 16, 16, 16) // Add padding
+            verticalSpacing = 15
+            horizontalSpacing = 15
+            setPadding(20, 20, 20, 20) // Add padding
             clipToPadding = false
         }
 
