@@ -108,7 +108,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    fun changeAccount() {
+    private fun changeAccount() {
         // Sign out the current account
         googleSignInClient.signOut().addOnCompleteListener(this) {
             // After signing out, show the account picker

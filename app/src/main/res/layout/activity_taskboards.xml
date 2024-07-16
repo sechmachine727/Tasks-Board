@@ -24,6 +24,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tabMode="scrollable" />
 
+    <include layout="@layout/board_overview"/>
+
     <ImageButton
         android:id="@+id/searchButton"
         android:layout_width="wrap_content"
@@ -64,14 +66,15 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="5dp"
-        android:text="Menu"
+        app:srcCompat="@drawable/ic_more_horizontal"
+        android:text="@string/menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/overviewButton"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:text="@string/board_overview"
         app:layout_constraintBottom_toBottomOf="parent"
