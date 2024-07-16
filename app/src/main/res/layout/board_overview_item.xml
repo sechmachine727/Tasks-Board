@@ -8,13 +8,13 @@
 
     <TextView
         android:id="@+id/boardNameTextView"
-        android:layout_width="376dp"
-        android:layout_height="29dp"
         android:layout_margin="8dp"
         android:gravity="start"
         android:padding="12dp"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:textStyle="bold" />
 
 </LinearLayout>
