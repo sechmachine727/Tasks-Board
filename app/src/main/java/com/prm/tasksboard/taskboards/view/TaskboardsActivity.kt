@@ -271,6 +271,7 @@ class TaskboardsActivity : AppCompatActivity() {
             val newName = input.text.toString()
             boardList[position].name = newName
             tabLayout.getTabAt(position)?.text = newName
+            dbHandler.updateBoardItem(boardList[position].boardId, mapOf("name" to newName))
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 

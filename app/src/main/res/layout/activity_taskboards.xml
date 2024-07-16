@@ -24,6 +24,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tabMode="scrollable" />
 
+    <include
+        android:id="@+id/boardOverview"
+        layout="@layout/board_overview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/addTaskButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        tools:visibility="gone" />
+
     <ImageButton
         android:id="@+id/searchButton"
         android:layout_width="wrap_content"
@@ -101,5 +113,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tabLayout"
         app:layout_constraintVertical_bias="1.0" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
