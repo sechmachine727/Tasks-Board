@@ -16,14 +16,6 @@
         android:paddingRight="16dp"
         android:paddingBottom="16dp">
 
-        <CheckBox
-            android:id="@+id/taskCheckBox"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:layout_constraintBottom_toBottomOf="@+id/taskSummaryTextView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/taskSummaryTextView" />
-
         <TextView
             android:id="@+id/taskSummaryTextView"
             android:layout_width="280dp"

@@ -1,10 +1,8 @@
 package com.prm.tasksboard.taskboards.view
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -25,7 +23,7 @@ class TaskAdapter(
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
+        //        private val checkBox = itemView.findViewById<CheckBox>(R.id.taskCheckBox)
         private val titleView = itemView.findViewById<TextView>(R.id.taskSummaryTextView)
         private val expandArrowImageView =
             itemView.findViewById<ImageView>(R.id.expandArrowImageView)
@@ -45,7 +43,7 @@ class TaskAdapter(
         }
 
         fun bind(task: TaskItem, onTaskStatusChanged: (TaskItem) -> Unit) {
-            checkBox.isChecked = task.status == "finished"
+//            checkBox.isChecked = task.status == "finished"
             titleView.text = task.title
             descriptionView.text =
                 itemView.context.getString(R.string.task_description, task.description)
@@ -55,14 +53,15 @@ class TaskAdapter(
             )
             priorityView.text = itemView.context.getString(R.string.task_priority, task.priority)
 
-            checkBox.setOnCheckedChangeListener { _, isChecked ->
+            /*checkBox.setOnCheckedChangeListener { _, isChecked ->
                 val newStatus = if (isChecked) "finished" else "pending"
                 if (task.status != newStatus) {
                     task.status = newStatus
                     onTaskStatusChanged(task)
                     Log.d("TaskStatusChange", "Task ID: ${task.taskId}, New Status: $newStatus")
+
                 }
-            }
+            }*/
             expandArrowImageView.setOnClickListener {
                 if (taskDetailsLayout.visibility == View.GONE) {
                     taskDetailsLayout.visibility = View.VISIBLE
