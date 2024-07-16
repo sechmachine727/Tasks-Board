@@ -37,7 +37,7 @@ import java.util.Locale
 
 class TaskboardsActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
-    private lateinit var addBoardButton: Button
+    private lateinit var addTaskButton: Button
     private lateinit var menuButton: MaterialButton
     private lateinit var emptyView: TextView
     private lateinit var recyclerView: RecyclerView
@@ -58,7 +58,7 @@ class TaskboardsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_taskboards)
         setWindowInsetsListener()
         tabLayout = findViewById(R.id.tabLayout)
-        addBoardButton = findViewById(R.id.addTaskButton)
+        addTaskButton = findViewById(R.id.addTaskButton)
         menuButton = findViewById(R.id.menuButton)
         emptyView = findViewById(R.id.emptyView)
         gridView = findViewById(R.id.boardsGridView)
@@ -97,7 +97,7 @@ class TaskboardsActivity : AppCompatActivity() {
 
         fetchAndDisplayBoards()
 
-        addBoardButton.setOnClickListener {
+        addTaskButton.setOnClickListener {
             showAddTaskDialog()
         }
 
